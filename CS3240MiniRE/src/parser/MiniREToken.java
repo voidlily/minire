@@ -10,5 +10,6 @@ package parser;
  * @author Incomprehensible Penguin Arena
  */
 public class MiniREToken {
-
+	public String tokenstr;
+	public String tokentype;
 }

@@ -16,5 +16,14 @@ package parser;
  * @author Incomprehensible Penguin Arena
  */
 public class MiniREParser {
-
+	private String programfile;
+	private MiniREToken[] tokencollection;
+	
+	public void fileToParse(String filepath) {
+		
+	}
+	
+	public MiniREToken[] getAllTokens() {
+		return null;
+	}
 }

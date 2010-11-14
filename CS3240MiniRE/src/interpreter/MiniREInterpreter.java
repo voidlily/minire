@@ -6,9 +6,23 @@
 
 package interpreter;
 
+import parser.MiniREToken;
+
 /**
  * @author Incomprehensible Penguin Arena
  */
 public class MiniREInterpreter {
-
+	private MiniREToken[] minireprgm;
+	
+	public void interpretTokens(MiniREToken[] tokencollection) {
+		
+	}
+	
+	public int tokensGrammarLocation(String tokenstr) {
+		return 0;
+	}
+	
+	public void executeToken(MiniREToken tok) {
+		
+	}
 }
