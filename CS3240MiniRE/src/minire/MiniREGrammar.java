@@ -5,16 +5,21 @@ package minire;
 
 /**
  * @author Incomprehensible Penguin Arena
- *
+ * 
+ * grammar representation options
+ * * enum
+ * * hashtable
  */
 public class MiniREGrammar {
 	private String[] grammardefinition;
 	
-	public int tokStrLocInGrammar(String tok) {
-		return 0;
+	public String checkTokenAgainstGrammar(String tok) {
+		//enum option
+		//hashtable option
+		return "";
 	}
 	
-	public Boolean isTokenUsedInGrammar() {
-		return false;
-	}
+	//grammar definition goes here
+	
+	//parse the grammar def here
 }

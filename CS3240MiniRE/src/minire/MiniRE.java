@@ -12,6 +12,10 @@ import parser.MiniREToken;
 public class MiniRE {
 	private String programfile;
 	
+	//main
+		//startparsing
+		//pass parsed token collection to interpreter
+	
 	public MiniREToken[] startParsing() {
 		return null;
 	}

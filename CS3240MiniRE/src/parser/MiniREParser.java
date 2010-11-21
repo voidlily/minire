@@ -27,6 +27,11 @@ public class MiniREParser {
 		scanner = new MiniREScanner();
 	}
 	
+	/**
+	 * Sets the program file reader that is going to be used to read the program
+	 * by our "getAllTokens" function.
+	 * @param filepath
+	 */
 	public void fileToParse(String filepath) {
 		File prgmfile = new File(filepath);
 		if(prgmfile.exists()) {
@@ -43,6 +48,11 @@ public class MiniREParser {
 		}
 	}
 	
+	/**
+	 * Creates the tokens that represent the file and checks each against the
+	 * grammar.
+	 * @return
+	 */
 	public MiniREToken[] getAllTokens() {
 		try {
 			String line = "";

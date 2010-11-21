@@ -12,4 +12,5 @@ package parser;
 public class MiniREToken {
 	public String tokenstr;
 	public String tokentype;
+	public int linenum;
 }
