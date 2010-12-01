@@ -20,7 +20,6 @@ public class MiniREScanner {
 	 * @return MiniREToken
 	 */
 	public MiniREToken getNextToken() {
-		MiniREToken tok = new MiniREToken();
 		String tempstr = "";
 		
 		while(this.linetoparse.length() > this.lineposition) {
@@ -32,8 +31,7 @@ public class MiniREScanner {
 			tempstr += this.linetoparse.charAt(this.lineposition);
 			this.lineposition++;
 		}
-		tok.tokenstr = tempstr;
-		return tok;
+		return new MiniREToken(tempstr);
 	}
 	
 	/**
