@@ -8,22 +8,23 @@ package parser;
  * @author Incomprehensible Penguin Arena
  */
 public class MiniREScanner {
+	// TODO: static methods?
 	private String linetoparse;
 	private int lineposition;
-	
+
 	public MiniREScanner() {
-		
+
 	}
-	
+
 	/**
 	 * Get the next token from the line. Includes ' ', ';', '\n'.
 	 * @return MiniREToken
 	 */
 	public MiniREToken getNextToken() {
 		String tempstr = "";
-		
-		while(this.linetoparse.length() > this.lineposition) {
-			if(this.linetoparse.charAt(this.lineposition) == ' ') {
+
+		while (this.linetoparse.length() > this.lineposition) {
+			if (this.linetoparse.charAt(this.lineposition) == ' ') {
 				//Want to make sure that we go past the space.
 				this.lineposition++;
 				break;
@@ -33,18 +34,18 @@ public class MiniREScanner {
 		}
 		return new MiniREToken(tempstr);
 	}
-	
+
 	/**
 	 * Are there more characters on the present line.
 	 * @return boolean
 	 */
 	public boolean hasMoreTokens() {
-		if(this.linetoparse.length() > this.lineposition) {
+		if (this.linetoparse.length() > this.lineposition) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Parse the passed in line.
 	 * @param line
@@ -55,7 +56,7 @@ public class MiniREScanner {
 		// store in list of strings, each string is one statement
 		// also needs to handle begin/end
 		this.lineposition = 0;
-		if(line.length() > 0) {
+		if (line.length() > 0) {
 			//TODO: Ensure that trim does not remove too much white space.
 			// ignore whitespace - (scanner will not send tokens made entirely of whitespace)
 			// however, spaces in strings and regexes should not be ignored
@@ -63,8 +64,7 @@ public class MiniREScanner {
 			// and the separation between begin/end
 			// (see official clarifications forum post)
 			this.linetoparse = line.trim();
-		}
-		else {
+		} else {
 			this.linetoparse = "";
 		}
 	}
