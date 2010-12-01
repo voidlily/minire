@@ -16,14 +16,20 @@ public class MiniREToken {
 	public Type tokentype;
 	//Line number of the token within the program that the token resides in.
 	public int linenum;
-	
+	public static enum Type{
+		LEXICAL,
+		TERMINAL,
+		INVALID,
+		RULE;
+	}
+
 	public MiniREToken(String str) {
 		this.tokenstr = str;
 		this.tokentype = determineType();
 	}
-	
+
 	public Type determineType() {
-		if(Terminal.determineTokenType(tokenstr) != null) {
+		if (Terminal.determineTokenType(tokenstr) != null) {
 			return Type.TERMINAL;
 		}
 		else if(Lexical.determineTokenType(tokenstr) != null) {
