@@ -4,68 +4,105 @@
  */
 package parser;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Incomprehensible Penguin Arena
  */
 public class MiniREScanner {
-	// TODO: static methods?
-	private String linetoparse;
-	private int lineposition;
+	private Reader reader;
+	/** All the tokens */
+	private List<MiniREToken> tokens;
+	/** Current line number */
+	private int line = 0;
+	/** Are we finished reading? */
+	private boolean hasMoreTokens = true;
+	/** Escape the next character? */
+	private boolean escape = false;
+	/** Are we currently reading a regex? */
+	private boolean inRegex = false;
+	/** Is the current token alphanumeric or not? (for terminals) */
+	private boolean currTokenAlphaNum;
+	/** The current token string. */
+	private String currTokStr = "";
 
-	public MiniREScanner() {
-
+	public MiniREScanner(final Reader reader) {
+		this.reader = reader;
 	}
+
+	/**
+	 * Scan using the reader, returning a list of tokens.
+	 *
+	 * A given MiniREScanner instance will only perform the scanning operation once
+	 * and cache the results.
+	 * If scan() is called again, the cached results are immediately returned.
+	 * @return
+	 */
+	public List<MiniREToken> scan() throws IOException {
+		if (tokens != null && !tokens.isEmpty()) {
+			return tokens;
+		} else {
+			tokens = new ArrayList<MiniREToken>();
+			if (reader.ready()) {
+				while (this.hasMoreTokens) {
+					MiniREToken tok = this.nextToken();
+					// tok is null when we reach EOF
+					if (tok != null) {
+						tokens.add(tok);
+					}
+				}
+			}
+		}
+		return tokens;
+	}
+
 
 	/**
 	 * Get the next token from the line. Includes ' ', ';', '\n'.
 	 * @return MiniREToken
 	 */
-	public MiniREToken getNextToken() {
-		String tempstr = "";
+	private MiniREToken nextToken() throws IOException {
+		char next = (char) reader.read();
+		// TODO extract to method these 3 code blocks, and the other while next == ' '
+		if (next == -1) {
+			this.hasMoreTokens = false;
+			return null;
+		}
+		if (next == '\n') {
+			line++;
+		}
+		while (next == ' ') {
+			next = (char) reader.read();
+		}
+		currTokStr += next;
 
-		while (this.linetoparse.length() > this.lineposition) {
-			if (this.linetoparse.charAt(this.lineposition) == ' ') {
-				//Want to make sure that we go past the space.
-				this.lineposition++;
-				break;
+		// TODO: if currTokStr = (start of regex character) {
+		// scanRegex();
+		// } else {
+		// scanNonRegex();
+		// }
+		// the section below will be extracted to scanNonRegex() method
+
+		// ***** Is this allowed? *****
+		currTokenAlphaNum = Character.isLetterOrDigit(next);
+
+		// Continue adding more characters to the candidate token
+		// until we hit a non-matching (with respect to letter or digit) character
+		while (Character.isLetterOrDigit(next) == currTokenAlphaNum) {
+			currTokStr += next;
+			next = (char) reader.read();
+			while (next == ' ') {
+				next = (char) reader.read();
 			}
-			tempstr += this.linetoparse.charAt(this.lineposition);
-			this.lineposition++;
 		}
-		return new MiniREToken(tempstr);
-	}
 
-	/**
-	 * Are there more characters on the present line.
-	 * @return boolean
-	 */
-	public boolean hasMoreTokens() {
-		if (this.linetoparse.length() > this.lineposition) {
-			return true;
-		}
-		return false;
-	}
+		MiniREToken tok = new MiniREToken(currTokStr, line);
 
-	/**
-	 * Parse the passed in line.
-	 * @param line
-	 */
-	public void parseThisLine(String line) {
-		//TODO: parse by statement instead of by line? (multi-line strings and statements)
-		// semicolon delimited, effectively implement string.split
-		// store in list of strings, each string is one statement
-		// also needs to handle begin/end
-		this.lineposition = 0;
-		if (line.length() > 0) {
-			//TODO: Ensure that trim does not remove too much white space.
-			// ignore whitespace - (scanner will not send tokens made entirely of whitespace)
-			// however, spaces in strings and regexes should not be ignored
-			// needs whitespace/EOF to detect ends of tokens
-			// and the separation between begin/end
-			// (see official clarifications forum post)
-			this.linetoparse = line.trim();
-		} else {
-			this.linetoparse = "";
-		}
+		currTokStr = "" + next;
+
+		return tok;
 	}
 }

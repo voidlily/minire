@@ -7,12 +7,16 @@
  * * Check each token and set of tokens against a defined grammar
  * * Determine if an error exists in the passed in program
  * * Hand it back to the caller in a format the interpreter can run
- * 
+ *
  */
 
 package parser;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Incomprehensible Penguin Arena
@@ -22,11 +26,11 @@ public class MiniREParser {
 	private FileReader programfilereader;
 	private MiniREToken[] tokencollection;
 	private MiniREScanner scanner;
-	
+
 	public MiniREParser() {
-		scanner = new MiniREScanner();
+		scanner = new MiniREScanner(programfilereader);
 	}
-	
+
 	/**
 	 * Sets the program file reader that is going to be used to read the program
 	 * by our "getAllTokens" function.
@@ -47,35 +51,15 @@ public class MiniREParser {
 			//Then the inputed file does not exist, raise an error accordingly.
 		}
 	}
-	
+
 	/**
 	 * Creates the tokens that represent the file and checks each against the
 	 * grammar.
-	 * @return
+	 * @return list of tokens
+	 * @throws IOException if scanner throws exception
 	 */
-	public MiniREToken[] getAllTokens() {
-		try {
-			String line = "";
-			char nextchar;
-			if(programfilereader.ready()) {
-				//Read till the end of the file.
-				nextchar = (char) programfilereader.read();
-				while(nextchar != -1) {
-					while(nextchar != '\n') {
-						line += nextchar;
-						nextchar = (char) programfilereader.read();
-					}
-					scanner.parseThisLine(line);
-					while(scanner.hasMoreTokens()) {
-						tokencollection[tokencollection.length] = scanner.getNextToken();
-					}
-				}
-			}
-			return tokencollection;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+	public List<MiniREToken> getAllTokens() throws IOException {
+		List<MiniREToken> tokens = scanner.scan();
+		return tokens;
 	}
 }

@@ -31,9 +31,10 @@ public class MiniREToken {
 	/**
 	 * @param str string representation of the token
 	 */
-	public MiniREToken(final String str) {
+	public MiniREToken(final String str, final int linenum) {
 		this.tokenstr = str;
 		this.tokentype = determineType();
+		this.linenum = linenum;
 	}
 
 	public Type determineType() {
