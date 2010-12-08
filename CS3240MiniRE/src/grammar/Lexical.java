@@ -12,7 +12,7 @@ public enum Lexical {
 	INTNUM ("INTNUM", "'(-)?[1-9][0-9]*|0'"),
 	//Not sure if this regex will even catch ALL regex. We will likely have to
 	//manually implement the regex and regex checking anyways, making this more
-	//of a guide in that case.
+	//of a guide in that case. Doesn't really matter though, it is just for reference.
 	REGEX ("REGEX", "'\'([a-zA-Z0-9_]|\\ |\\\\|\\*|\\+|\\?|\\||\\[|\\]\\(|\\)|\\.|\\'|\\\"|\\[.\\])*\''"),
 	ASCIISTR ("ASCIISTR", "'\".\"'"),
 	EMPTYSTR ("EMPTYSTR", "");
@@ -49,14 +49,15 @@ public enum Lexical {
 	 */
 	public static boolean checkStrAgainstLexicalType(String str, Lexical lex) {
 		boolean result = false;
+		int i;
 		switch(lex) {
 		case ID:
 			//Length must be 1-10 characters long.
 			if(str.length() > 0 && str.length() <= 10) {
-				if(Character.isLetter(str.charAt(0))) {
+				if(isLetter(str.charAt(0))) {
 					result = true;
-					for(int i = 1; i < str.length(); i++) {
-						if(Character.isLetterOrDigit(str.charAt(i)) || str.charAt(i) == '_') {
+					for(i = 1; i < str.length(); i++) {
+						if(isLetterOrDigit(str.charAt(i)) || str.charAt(i) == '_') {
 							result = true;
 						}
 						else {
@@ -71,23 +72,214 @@ public enum Lexical {
 			}
 			break;
 		case INTNUM:
-			try {
-				Integer.parseInt(str);
-				result = true;
-			} catch (NumberFormatException e) {
-				result = false;
+			if(str.length() > 0) {
+				if(str.charAt(0) == '-') {
+					//Then is a negative number.
+					for(i = 1; i < str.length(); i++) {
+						if(isDigit(str.charAt(i))) {
+							result = true;
+						}
+						else {
+							result = false;
+							break;
+						}
+					}
+				}
+				else{
+					//Then not a negative number.
+					for(i = 0; i < str.length(); i++) {
+						if(isDigit(str.charAt(i))) {
+							result = true;
+						}
+						else {
+							result = false;
+							break;
+						}
+					}
+				}
 			}
 			break;
 		case REGEX:
+			result = true;
+			if(str.length() >= 2) {
+				if(str.charAt(0) == '\'') {
+					for(i = 1; i < str.length() - 1; i++) {
+						if(isLetterOrDigit(str.charAt(i))) {
+							//These are perfectly safe as is.
+						}
+						else if(str.charAt(i) == '\\') {
+							//Then check the next character to see what we are escaping.
+							if(regexEscapeOutsideBrackets(str.charAt(i + 1))) {
+								//Then we are escaping something we are supposed to.
+								i++;
+							}
+							else {
+								//We don't need to escape this character.
+								result = false;
+								break;
+							}
+						}
+						else if(str.charAt(i) == '[') {
+							/* Now we are inside [], must ensure that:
+							 * * There are no nested []
+							 * * We escape the necessary characters inside the []
+							 */
+							for(int j = i + 1; j < str.length() - 1; j++) {
+								if(str.charAt(j) == ']') {
+									//Then we are closing the []s.
+									break;
+								}
+								else if(str.charAt(j) == '\\') {
+									//Then is the next character something that should be escaped?
+									if(regexEscapeInBrackets(str.charAt(j + 1))) {
+										//We should be escaping this character.
+										j++;
+									}
+									else {
+										result = false;
+										break;
+									}
+								}
+								else if(regexEscapeInBrackets(str.charAt(j))) {
+									//Then should have been escaped.
+									result = false;
+									break;
+								}
+							}
+						}
+						else if(regexEscapeOutsideBrackets(str.charAt(i))) {
+							//Then we hit something that likely should be escaped and isn't.
+							result = false;
+							break;
+						}
+					}
+					if(result && str.charAt(str.length() - 1) == '\'') {
+						result = true;
+					}
+					else {
+						result = false;
+					}
+				}
+				else {
+					result = false;
+				}
+			}
+			else {
+				result = false;
+			}
 			break;
 		case ASCIISTR:
+			//Make sure that the string is at least ""
+			if(str.length() >= 2) {
+				if(str.charAt(0) == '"') {
+					for(i = 1; i < str.length() - 1; i++) {
+						if(str.charAt(i) == '\\') {
+							//Want to make sure we aren't escaping the end quote by testing:
+							//j != str.length() - 2
+							if(i == str.length() - 2) {
+								//Then we are trying to escape the final quote, or it 
+								//doesn't end with a quote.
+								result = false;
+								break;
+							}
+							//Check the next character to make sure we are escaping
+							//something that actually needs escaping.
+							if(str.charAt(i + 1) == '\\') {
+								i++;
+							}
+							else if(str.charAt(i + 1) == '"') {
+								i++;
+							}
+							else {
+								//Then the '\' or '"' is not escaped.
+								result = false;
+								break;
+							}
+						}
+						else if(str.charAt(i) == '"') {
+							//Then it wasn't preceded by a \, so isn't escaped.
+							result = false;
+							break;
+						}
+						//Anything else is allowed within an ASCII string.
+					}
+					if(str.charAt(str.length() - 1) == '"') {
+						result = true;
+					}
+				}
+			}
 			break;
 		case EMPTYSTR:
 			break;
-		default:
-			break;
 		}
 		
+		return result;
+	}
+
+	private static boolean isLetter(char c) {
+		int asciival = c;
+		if((asciival >= 65 && asciival <= 90) || (asciival >= 97 && asciival <= 122)) {
+			return true;
+		}
+		return false;
+	}
+	
+	private static boolean isDigit(char c) {
+		int asciival = c;
+		if(asciival >= 48 && asciival <= 57) {
+			return true;
+		}
+		return false;
+	}
+	
+	private static boolean isLetterOrDigit(char c) {
+		/* For reference - ASCII breakdown:
+		 * [A-Z] = 65 - 90
+		 * [a-z] = 97 - 122
+		 * [0-9] = 48 - 57
+		 */
+		return (isDigit(c) || isLetter(c));
+	}
+	
+	private static boolean regexEscapeInBrackets(char c) {
+		/*
+		 * '\', '[', ']', '^', '-'
+		 */
+		boolean result = false;
+		switch(c) {
+		case '\\':
+		case '[':
+		case ']':
+		case '^':
+		case '-':
+			result = true;
+			break;
+		}
+		return result;
+	}
+	
+	private static boolean regexEscapeOutsideBrackets(char c) {
+		/*
+		 * ' ', '\', '*', '+', '?', '|', '[', ']', '(', ')', '.', ''', '"'
+		 */
+		boolean result = false;
+		switch(c) {
+		case ' ':
+		case '\\':
+		case '*':
+		case '+':
+		case '?':
+		case '|':
+		case '[':
+		case ']':
+		case '(':
+		case ')':
+		case '.':
+		case '\'':
+		case '"':
+			result = true;
+			break;
+		}
 		return result;
 	}
 }
