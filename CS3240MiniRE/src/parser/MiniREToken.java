@@ -23,6 +23,8 @@ public class MiniREToken {
 	private Terminal term;
 	/** If Lexical, the lexical type, else null. */
 	private Lexical lex;
+	/** Space between tokens (for 2 - -2 case) */
+	private boolean spaceAfterToken;
 
 	/** MiniREToken type enum. */
 	public static enum Type {
@@ -36,11 +38,20 @@ public class MiniREToken {
 	 * @param str string representation of the token
 	 */
 	public MiniREToken(final String str, final int linenum) {
+		this(str, linenum, true);
+	}
+
+	/**
+	 * @param str string representation of the token
+	 * @param spaceAfterToken TODO
+	 */
+	public MiniREToken(final String str, final int linenum, boolean spaceAfterToken) {
 		this.term = null;
 		this.lex = null;
 		this.tokenstr = str;
 		this.tokentype = determineType();
 		this.linenum = linenum;
+		this.spaceAfterToken = spaceAfterToken;
 	}
 
 	public Type determineType() {
@@ -123,5 +134,19 @@ public class MiniREToken {
 	 */
 	public void setLex(Lexical lex) {
 		this.lex = lex;
+	}
+
+	/**
+	 * @return the spaceAfterToken
+	 */
+	public boolean isSpaceAfterToken() {
+		return spaceAfterToken;
+	}
+
+	/**
+	 * @param spaceAfterToken the spaceAfterToken to set
+	 */
+	public void setSpaceAfterToken(boolean spaceAfterToken) {
+		this.spaceAfterToken = spaceAfterToken;
 	}
 }

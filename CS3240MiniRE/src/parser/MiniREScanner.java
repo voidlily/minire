@@ -4,6 +4,7 @@
  */
 package parser;
 
+import grammar.Lexical;
 import grammar.Terminal;
 
 import java.io.IOException;
@@ -50,11 +51,25 @@ public class MiniREScanner {
 					// tok is null when we reach EOF
 					if (tok != null) {
 						if (tok.getTerm() == Terminal.greaterbool) {
-							MiniREToken lasttok = tokens.get(tokens.size() - 1);
-							MiniREToken arrowtok = new MiniREToken("->", lasttok.getLinenum());
-							if (lasttok.getTerm() == Terminal.minus) {
-								tokens.set(tokens.size() - 1, arrowtok);
-								continue;
+							if (tokens.size() != 0) {
+								MiniREToken lasttok = tokens.get(tokens.size() - 1);
+								MiniREToken arrowtok = new MiniREToken("->", lasttok.getLinenum(), true);
+								if (lasttok.getTerm() == Terminal.minus) {
+									tokens.set(tokens.size() - 1, arrowtok);
+									continue;
+								}
+							}
+						} else if (tok.getTokentype() == MiniREToken.Type.LEXICAL
+								&& tok.getLex() == Lexical.INTNUM) {
+							if (tokens.size() != 0) {
+								MiniREToken lasttok = tokens.get(tokens.size() - 1);
+								if (lasttok.getTerm() == Terminal.minus
+										&& !lasttok.isSpaceAfterToken()) {
+									tokens.set(tokens.size() - 1,
+											new MiniREToken("-" + tok.getTokenstr(),
+													lasttok.getLinenum(), true));
+									continue;
+								}
 							}
 						}
 						tokens.add(tok);
@@ -71,6 +86,9 @@ public class MiniREScanner {
 	 * @return MiniREToken
 	 */
 	private MiniREToken nextToken() throws IOException {
+		/** Space between tokens (for 2 - -2 case) */
+		boolean spaceBetweenTokens = false;
+
 		boolean inRegex = false;
 		char regexDelimiter = '\0';
 		if (currTokStr.equals("'") || currTokStr.equals("\"")) {
@@ -78,12 +96,6 @@ public class MiniREScanner {
 			regexDelimiter = currTokStr.charAt(0);
 		}
 		char next = nextChar();
-		if (next == (char) -1) {
-			return null;
-		}
-		while (!inRegex && (next == ' ' || next == '\n' || next == '\t')) {
-			next = nextChar();
-		}
 
 		// Continue adding more characters to the candidate token
 		// until we hit a non-matching (with respect to letter or digit) character
@@ -101,21 +113,19 @@ public class MiniREScanner {
 				}
 			}
 			// once more to actually append the closing tag
-			currTokStr += next;
+			if (next != (char) -1 ) {
+				currTokStr += next;
+			}
 			next = nextChar();
 		} else {
 			boolean done = Terminal.determineTokenType(currTokStr) != null;
 			boolean alphanum = CharacterMatcher.isLetterOrDigit(next);
 			while (!done && CharacterMatcher.isLetterOrDigit(next) == alphanum) {
-				currTokStr += next;
+				if (next != (char) -1) {
+					currTokStr += next;
+				}
 				if (Terminal.determineTokenType(currTokStr) != null) {
 					done = true;
-				}
-				while (next == ' ' || next == '\n' || next == '\t') {
-					next = nextChar();
-				}
-				if (next == (char) -1) {
-					break;
 				}
 //				if (Character.isDefined(next)) {
 //					System.out.print(next);
@@ -131,12 +141,15 @@ public class MiniREScanner {
 		}
 
 		while (next == ' ' || next == '\n' || next == '\t') {
+			if (next == ' ') {
+				spaceBetweenTokens = true;
+			}
 			next = nextChar();
 		}
 //		if (Character.isDefined(next)) {
 //			System.out.print(next);
 //		}
-		MiniREToken tok = new MiniREToken(currTokStr, line);
+		MiniREToken tok = new MiniREToken(currTokStr, line, spaceBetweenTokens);
 
 		currTokStr = "" + next;
 
