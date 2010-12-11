@@ -43,12 +43,18 @@ public enum GrammarRule {
 	BOOLOP5 ("<=", new MiniREToken.Type[] {MiniREToken.Type.TERMINAL}),
 	BOOLOP6 (">=", new MiniREToken.Type[] {MiniREToken.Type.TERMINAL});
 	
-	@SuppressWarnings("unused")
 	private final String rulestr;
-	@SuppressWarnings("unused")
 	private final MiniREToken.Type[] ruletypes;
 	GrammarRule(String rulestr, MiniREToken.Type[] ruletypes) {
 		this.rulestr = rulestr;
 		this.ruletypes = ruletypes;
+	}
+	
+	public String getRulestr() {
+		return this.rulestr;
+	}
+	
+	public MiniREToken.Type[] getRuletypes() {
+		return this.ruletypes;
 	}
 }

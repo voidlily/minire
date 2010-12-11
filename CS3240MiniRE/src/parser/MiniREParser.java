@@ -12,10 +12,13 @@
 
 package parser;
 
+import grammar.Terminal;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,6 +51,7 @@ public class MiniREParser {
 			}
 		}
 		else {
+			
 			//Then the inputed file does not exist, raise an error accordingly.
 		}
 	}
@@ -62,4 +66,22 @@ public class MiniREParser {
 		List<MiniREToken> tokens = scanner.scan();
 		return tokens;
 	}
+	
+	public List<List<MiniREToken>> getTokensByLines() throws IOException {
+		List<List<MiniREToken>> ret = new ArrayList<List<MiniREToken>>();
+		List<MiniREToken> tokens = getAllTokens();
+		for (MiniREToken t: tokens) {
+			List<MiniREToken> current_line = new ArrayList<MiniREToken>();
+			if(t.getTokentype()==MiniREToken.Type.TERMINAL) {
+				if(Terminal.determineTokenType(t.getTokenstr())==Terminal.semicolon) {
+					ret.add(current_line);
+					current_line = new ArrayList<MiniREToken>();
+				}
+			} else {
+				current_line.add(t);
+			}
+		}
+		return ret;
+	}
+	
 }

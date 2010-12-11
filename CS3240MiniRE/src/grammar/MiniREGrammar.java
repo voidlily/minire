@@ -21,12 +21,18 @@ public enum MiniREGrammar {
 	CONDITION ("<condition>", new GrammarRule[] {GrammarRule.CONDITION}),
 	BOOLOP ("<bool-op>", new GrammarRule[] {GrammarRule.BOOLOP1, GrammarRule.BOOLOP2, GrammarRule.BOOLOP3, GrammarRule.BOOLOP4, GrammarRule.BOOLOP5, GrammarRule.BOOLOP6});
 	
-	@SuppressWarnings("unused")
 	private final String rulename;
-	@SuppressWarnings("unused")
 	private final GrammarRule[] rules;
 	MiniREGrammar(String name, GrammarRule[] rules) {
 		this.rulename = name;
 		this.rules = rules;
+	}
+	
+	public String getRulename() {
+		return this.rulename;
+	}
+	
+	public GrammarRule[] getRules() {
+		return this.rules;
 	}
 }
