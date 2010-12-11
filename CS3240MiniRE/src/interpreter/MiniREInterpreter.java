@@ -7,14 +7,15 @@
 package interpreter;
 
 import parser.MiniREToken;
+import java.util.List;
 
 /**
  * @author Incomprehensible Penguin Arena
  */
 public class MiniREInterpreter {
-	private MiniREToken[] minireprgm;
+	private List<MiniREToken> minireprgm;
 	
-	public void interpretTokens(MiniREToken[] tokencollection) {
+	public void interpretTokens(List<MiniREToken> tokencollection) {
 		
 	}
 	
