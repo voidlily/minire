@@ -22,7 +22,7 @@ public class MiniREScanner {
 	/** All the tokens */
 	private List<MiniREToken> tokens;
 	/** Current line number */
-	private int line = 0;
+	private int line = 1;
 	/** Are we finished reading? */
 	private boolean hasMoreTokens = true;
 	/** The current token string. */
