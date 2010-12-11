@@ -1,29 +1,29 @@
 /**
- * The interpreter will take in the tokens from the parser and will execute 
+ * The interpreter will take in the tokens from the parser and will execute
  * them according to our grammar. So a token that indicates it is a variable
  * will be interpreted as a variable when executed by this interpreter.
  */
 
 package interpreter;
 
-import parser.MiniREToken;
 import grammar.Lexical;
 import grammar.Terminal;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.List;
 
 import minire.CharacterHelper;
+import parser.MiniREToken;
 
 /**
  * @author Incomprehensible Penguin Arena
  */
 public class MiniREInterpreter {
-	private Hashtable stack;
+	private HashMap<String, Object> intSym;
 
 	public void interpretTokens(List<MiniREToken> tokencollection) {
-		stack = new Hashtable<String, Object>();
+		intSym = new HashMap<String, Object>();
 		boolean ended = false;
 		boolean started = false;
 		MiniREToken tok;
@@ -46,7 +46,7 @@ public class MiniREInterpreter {
 				System.out.println("See line " + tok.getLinenum() + " in the program.");
 				System.exit(0);
 			}
-			
+
 			buff.add(tok);
 			if(tok.getTokentype() == MiniREToken.Type.TERMINAL && tok.getTerm() == Terminal.begin) {
 				if(started) {
@@ -88,7 +88,7 @@ public class MiniREInterpreter {
 				executeLine(buff);
 				buff.clear();
 			}
-			
+
 			if(!started) {
 				//The first token in the program should start us properly.
 				System.out.println("The first terminal in the program was not 'begin'.");
@@ -96,7 +96,7 @@ public class MiniREInterpreter {
 			}
 		}
 	}
-	
+
 	/**
 	 * Takes in a "buffer" of tokens that are supposed to end with a ';', effectively
 	 * being a single line of code to execute.
@@ -113,15 +113,15 @@ public class MiniREInterpreter {
 				//it didn't match the grammar properly in the parser.
 				tok = tokens.get(1);
 				if(tok.getTokentype() != MiniREToken.Type.TERMINAL || tok.getTerm() != Terminal.assignment) {
-					System.out.println("The variable " + tokens.get(0).getTokenstr() 
-							+ " is not followed by an assignment to some exp at line " 
+					System.out.println("The variable " + tokens.get(0).getTokenstr()
+							+ " is not followed by an assignment to some exp at line "
 							+ tok.getLinenum() + ".");
 					System.exit(0);
 				}
 				//Want to make sure the last token is a ';'
 				tok = tokens.get(tokens.size() - 1);
 				if(tok.getTokentype() != MiniREToken.Type.TERMINAL || tok.getTerm() != Terminal.semicolon) {
-					System.out.println("The variable assignment at line " 
+					System.out.println("The variable assignment at line "
 							+ tokens.get(0).getLinenum() + " does not end with a ';'");
 					System.exit(0);
 				}
@@ -130,29 +130,29 @@ public class MiniREInterpreter {
 					tok = tokens.get(2);
 					if(tok.getTokentype() == MiniREToken.Type.LEXICAL && tok.getLex() == Lexical.ID) {
 						//Need to confirm that this other ID already exists in the stack.
-						if(!stack.containsKey(tok.getTokenstr())) {
-							System.out.println("The variable " + tok.getTokenstr() 
+						if(!intSym.containsKey(tok.getTokenstr())) {
+							System.out.println("The variable " + tok.getTokenstr()
 									+ " does not exist yet at line " + tok.getLinenum());
 							System.exit(0);
 						}
-						stack.put(tokens.get(0).getTokenstr(), tok.getTokenstr());
+						intSym.put(tokens.get(0).getTokenstr(), tok.getTokenstr());
 					}
 					else if(tok.getTokentype() == MiniREToken.Type.LEXICAL && tok.getLex() == Lexical.INTNUM) {
 						//Just have to confirm that the token is an INTNUM.
 						if(!Lexical.checkStrAgainstLexicalType(tok.getTokenstr(), Lexical.INTNUM)) {
-							System.out.println("Was under the impression that the variable " 
-									+ tokens.get(0).getTokenstr() 
-									+ " was supposed to receive an integer number in the assignment at line " 
+							System.out.println("Was under the impression that the variable "
+									+ tokens.get(0).getTokenstr()
+									+ " was supposed to receive an integer number in the assignment at line "
 									+ tokens.get(0).getLinenum());
 							System.exit(0);
 						}
 						tempint = CharacterHelper.convertStringToInt(tok.getTokenstr());
-						stack.put(tokens.get(0).getTokenstr(), tempint);
+						intSym.put(tokens.get(0).getTokenstr(), new Integer(tempint));
 					}
 					else {
 						//Then we didn't get ID or INTNUM and must error.
-						System.out.println("Was expecting the variable to be set " 
-								+ "to another variable or an integer, did not " 
+						System.out.println("Was expecting the variable to be set "
+								+ "to another variable or an integer, did not "
 								+ "find either at line " + tok.getLinenum());
 						System.exit(0);
 					}
@@ -162,31 +162,31 @@ public class MiniREInterpreter {
 				}
 			}
 		}
-		
+
 		for(int i = 0; i < tokens.size(); i++) {
 			tok = tokens.get(i);
 			if(tok.getTokentype() == MiniREToken.Type.LEXICAL && tok.getLex() == Lexical.ID) {
-				
+
 			}
-			
-			
-			
-			
+
+
+
+
 			if(tok.getTokentype() == MiniREToken.Type.TERMINAL) {
-				
+
 			}
 			else if(tok.getTokentype() == MiniREToken.Type.LEXICAL) {
-				if(tok.getLex() == Lexical.ID && stack.containsKey(tok.getTokenstr())) {
+				if(tok.getLex() == Lexical.ID && intSym.containsKey(tok.getTokenstr())) {
 					//Then is already on the stack.
 				}
-				else if(tok.getLex() == Lexical.ID && !stack.containsKey(tok.getTokenstr())) {
+				else if(tok.getLex() == Lexical.ID && !intSym.containsKey(tok.getTokenstr())) {
 					//Then the variable is not on the stack.
 					//If the next token is :=, and the one after is a valid exp, then add to stack.
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Overloads the executeBlock() function to start it at position 0.
 	 * @param tokens
@@ -194,7 +194,7 @@ public class MiniREInterpreter {
 	private void executeBlock(List<MiniREToken> tokens) {
 		executeBlock(tokens, 0);
 	}
-	
+
 	/**
 	 * Will execute a block of tokens (while or if-else block). This block will
 	 * call executeLine() or executeBlock() as appropriate.
@@ -202,9 +202,9 @@ public class MiniREInterpreter {
 	 * @param pos
 	 */
 	private void executeBlock(List<MiniREToken> tokens, int pos) {
-		
+
 	}
-	
+
 	/**
 	 * We want to get the if-else block. We know that the first token will be 'if'.
 	 * @param pos
@@ -242,10 +242,10 @@ public class MiniREInterpreter {
 				break;
 			}
 		}
-		
+
 		return buff;
 	}
-	
+
 	/**
 	 * We want to get the while block. We know that the first token will be 'while'.
 	 * @param pos
@@ -285,9 +285,9 @@ public class MiniREInterpreter {
 		}
 		return buff;
 	}
-	
+
 	/**
-	 * We want to get the line by itself to run it. The first token could be an ID, 
+	 * We want to get the line by itself to run it. The first token could be an ID,
 	 * 'replace', or 'print'.
 	 * @param pos
 	 * @param tokencollection
