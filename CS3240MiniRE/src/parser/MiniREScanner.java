@@ -24,10 +24,6 @@ public class MiniREScanner {
 	private int line = 0;
 	/** Are we finished reading? */
 	private boolean hasMoreTokens = true;
-	/** Escape the next character? */
-	private boolean escape = false;
-	/** Are we currently reading a regex? */
-	private boolean inRegex = false;
 	/** The current token string. */
 	private String currTokStr = "";
 
@@ -82,6 +78,9 @@ public class MiniREScanner {
 			regexDelimiter = currTokStr.charAt(0);
 		}
 		char next = nextChar();
+		if (next == (char) -1) {
+			return null;
+		}
 		while (!inRegex && (next == ' ' || next == '\n' || next == '\t')) {
 			next = nextChar();
 		}

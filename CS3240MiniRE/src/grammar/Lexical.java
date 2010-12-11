@@ -35,7 +35,7 @@ public enum Lexical {
 	 */
 	public static Lexical determineTokenType(String tok) {
 		for(Lexical l : Lexical.values()) {
-			if(tok.equals(l.str)) {
+			if(checkStrAgainstLexicalType(tok, l)) {
 				return l;
 			}
 		}
