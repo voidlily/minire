@@ -81,20 +81,9 @@ public class MiniREScanner {
 			inRegex = true;
 			regexDelimiter = currTokStr.charAt(0);
 		}
-		char next = (char) reader.read();
-		// TODO extract to method these 3 code blocks, and the other while next == ' '
-		if (next == (char) -1) {
-			this.hasMoreTokens = false;
-			return null;
-		}
-		if (next == '\n') {
-			line++;
-		}
+		char next = nextChar();
 		while (!inRegex && (next == ' ' || next == '\n' || next == '\t')) {
-			next = (char) reader.read();
-			if (next == (char) -1) {
-				this.hasMoreTokens = false;
-			}
+			next = nextChar();
 		}
 
 		// Continue adding more characters to the candidate token
@@ -107,18 +96,14 @@ public class MiniREScanner {
 					escape = true;
 				}
 				currTokStr += next;
-				next = (char) reader.read();
+				next = nextChar();
 				if (next == (char) -1) {
-					this.hasMoreTokens = false;
 					break;
 				}
 			}
 			// once more to actually append the closing tag
 			currTokStr += next;
-			next = (char) reader.read();
-			if (next == (char) -1) {
-				this.hasMoreTokens = false;
-			}
+			next = nextChar();
 		} else {
 			boolean done = Terminal.determineTokenType(currTokStr) != null;
 			boolean alphanum = CharacterMatcher.isLetterOrDigit(next);
@@ -128,18 +113,16 @@ public class MiniREScanner {
 					done = true;
 				}
 				while (next == ' ' || next == '\n' || next == '\t') {
-					next = (char) reader.read();
+					next = nextChar();
 				}
 				if (next == (char) -1) {
-					this.hasMoreTokens = false;
 					break;
 				}
 //				if (Character.isDefined(next)) {
 //					System.out.print(next);
 //				}
-				next = (char) reader.read();
+				next = nextChar();
 				if (next == (char) -1) {
-					hasMoreTokens = false;
 					break;
 				}
 				if (done) {
@@ -149,7 +132,7 @@ public class MiniREScanner {
 		}
 
 		while (next == ' ' || next == '\n' || next == '\t') {
-			next = (char) reader.read();
+			next = nextChar();
 		}
 //		if (Character.isDefined(next)) {
 //			System.out.print(next);
@@ -159,5 +142,16 @@ public class MiniREScanner {
 		currTokStr = "" + next;
 
 		return tok;
+	}
+
+	private char nextChar() throws IOException {
+		char next = (char) reader.read();
+		if (next == (char) -1) {
+			this.hasMoreTokens = false;
+		}
+		if (next == '\n') {
+			line++;
+		}
+		return next;
 	}
 }
