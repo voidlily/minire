@@ -20,10 +20,10 @@ import parser.MiniREToken;
  * @author Incomprehensible Penguin Arena
  */
 public class MiniREInterpreter {
-	private HashMap<String, Object> intSym;
+	private HashMap<String, Object> sym;
 
 	public void interpretTokens(List<MiniREToken> tokencollection) {
-		intSym = new HashMap<String, Object>();
+		sym = new HashMap<String, Object>();
 		boolean ended = false;
 		boolean started = false;
 		MiniREToken tok;
@@ -108,10 +108,12 @@ public class MiniREInterpreter {
 		int tempint;
 		if(tokens.size() > 0) {
 			tok = tokens.get(0);
+
+			// Assignment
 			if(tok.getTokentype() == MiniREToken.Type.LEXICAL && tok.getLex() == Lexical.ID) {
 				//The only grammar rule that should match is STATEMENT1, else
 				//it didn't match the grammar properly in the parser.
-				tok = tokens.get(1);
+				tok = tokens.get(1); // should be :=
 				if(tok.getTokentype() != MiniREToken.Type.TERMINAL || tok.getTerm() != Terminal.assignment) {
 					System.out.println("The variable " + tokens.get(0).getTokenstr()
 							+ " is not followed by an assignment to some exp at line "
@@ -119,7 +121,7 @@ public class MiniREInterpreter {
 					System.exit(0);
 				}
 				//Want to make sure the last token is a ';'
-				tok = tokens.get(tokens.size() - 1);
+				tok = tokens.get(tokens.size() - 1); // ;
 				if(tok.getTokentype() != MiniREToken.Type.TERMINAL || tok.getTerm() != Terminal.semicolon) {
 					System.out.println("The variable assignment at line "
 							+ tokens.get(0).getLinenum() + " does not end with a ';'");
@@ -127,16 +129,21 @@ public class MiniREInterpreter {
 				}
 				if(tokens.size() == 4) {
 					//Then it is either 'ID := ID;' or 'ID := INTNUM;'
-					tok = tokens.get(2);
+					tok = tokens.get(2); // value (right hand side)
+
+					// value is ID
 					if(tok.getTokentype() == MiniREToken.Type.LEXICAL && tok.getLex() == Lexical.ID) {
 						//Need to confirm that this other ID already exists in the stack.
-						if(!intSym.containsKey(tok.getTokenstr())) {
+						if(!sym.containsKey(tok.getTokenstr())) {
 							System.out.println("The variable " + tok.getTokenstr()
 									+ " does not exist yet at line " + tok.getLinenum());
 							System.exit(0);
 						}
-						intSym.put(tokens.get(0).getTokenstr(), tok.getTokenstr());
+						// store a pointer to var 1's value in var 2's entry
+						sym.put(tokens.get(0).getTokenstr(), sym.get(tok.getTokenstr()));
 					}
+
+					// value is int
 					else if(tok.getTokentype() == MiniREToken.Type.LEXICAL && tok.getLex() == Lexical.INTNUM) {
 						//Just have to confirm that the token is an INTNUM.
 						if(!Lexical.checkStrAgainstLexicalType(tok.getTokenstr(), Lexical.INTNUM)) {
@@ -147,7 +154,8 @@ public class MiniREInterpreter {
 							System.exit(0);
 						}
 						tempint = CharacterHelper.convertStringToInt(tok.getTokenstr());
-						intSym.put(tokens.get(0).getTokenstr(), new Integer(tempint));
+						// use new Integer to make sure it's stored as object
+						sym.put(tokens.get(0).getTokenstr(), new Integer(tempint));
 					}
 					else {
 						//Then we didn't get ID or INTNUM and must error.
@@ -174,15 +182,6 @@ public class MiniREInterpreter {
 
 			if(tok.getTokentype() == MiniREToken.Type.TERMINAL) {
 
-			}
-			else if(tok.getTokentype() == MiniREToken.Type.LEXICAL) {
-				if(tok.getLex() == Lexical.ID && intSym.containsKey(tok.getTokenstr())) {
-					//Then is already on the stack.
-				}
-				else if(tok.getLex() == Lexical.ID && !intSym.containsKey(tok.getTokenstr())) {
-					//Then the variable is not on the stack.
-					//If the next token is :=, and the one after is a valid exp, then add to stack.
-				}
 			}
 		}
 	}
