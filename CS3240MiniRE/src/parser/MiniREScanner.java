@@ -12,7 +12,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import minire.CharacterMatcher;
+import minire.CharacterHelper;
 
 /**
  * @author Incomprehensible Penguin Arena
@@ -119,8 +119,8 @@ public class MiniREScanner {
 			next = nextChar();
 		} else {
 			boolean done = Terminal.determineTokenType(currTokStr) != null;
-			boolean alphanum = CharacterMatcher.isLetterOrDigit(next);
-			while (!done && CharacterMatcher.isLetterOrDigit(next) == alphanum) {
+			boolean alphanum = CharacterHelper.isLetterOrDigit(next);
+			while (!done && CharacterHelper.isLetterOrDigit(next) == alphanum) {
 				if (next != (char) -1) {
 					currTokStr += next;
 				}

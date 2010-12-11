@@ -3,7 +3,7 @@
  */
 package grammar;
 
-import minire.CharacterMatcher;
+import minire.CharacterHelper;
 
 /**
  * @author Incomprehensible Penguin Arena
@@ -56,10 +56,10 @@ public enum Lexical {
 		case ID:
 			//Length must be 1-10 characters long.
 			if(str.length() > 0 && str.length() <= 10) {
-				if(CharacterMatcher.isLetter(str.charAt(0))) {
+				if(CharacterHelper.isLetter(str.charAt(0))) {
 					result = true;
 					for(i = 1; i < str.length(); i++) {
-						if(CharacterMatcher.isLetterOrDigit(str.charAt(i)) || str.charAt(i) == '_') {
+						if(CharacterHelper.isLetterOrDigit(str.charAt(i)) || str.charAt(i) == '_') {
 							result = true;
 						}
 						else {
@@ -78,7 +78,7 @@ public enum Lexical {
 				if(str.charAt(0) == '-') {
 					//Then is a negative number.
 					for(i = 1; i < str.length(); i++) {
-						if(CharacterMatcher.isDigit(str.charAt(i))) {
+						if(CharacterHelper.isDigit(str.charAt(i))) {
 							result = true;
 						}
 						else {
@@ -90,7 +90,7 @@ public enum Lexical {
 				else{
 					//Then not a negative number.
 					for(i = 0; i < str.length(); i++) {
-						if(CharacterMatcher.isDigit(str.charAt(i))) {
+						if(CharacterHelper.isDigit(str.charAt(i))) {
 							result = true;
 						}
 						else {
@@ -106,7 +106,7 @@ public enum Lexical {
 			if(str.length() >= 2) {
 				if(str.charAt(0) == '\'') {
 					for(i = 1; i < str.length() - 1; i++) {
-						if(CharacterMatcher.isLetterOrDigit(str.charAt(i))) {
+						if(CharacterHelper.isLetterOrDigit(str.charAt(i))) {
 							//These are perfectly safe as is.
 						}
 						else if(str.charAt(i) == '\\') {
