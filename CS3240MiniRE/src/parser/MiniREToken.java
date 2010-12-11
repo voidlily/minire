@@ -19,6 +19,10 @@ public class MiniREToken {
 	private Type tokentype;
 	/** Line number of the token within the program that the token resides in. */
 	private int linenum;
+	/** If Terminal, the terminal type, else null. */
+	private Terminal term;
+	/** If Lexical, the lexical type, else null. */
+	private Lexical lex;
 
 	/** MiniREToken type enum. */
 	public static enum Type {
@@ -32,15 +36,19 @@ public class MiniREToken {
 	 * @param str string representation of the token
 	 */
 	public MiniREToken(final String str, final int linenum) {
+		this.term = null;
+		this.lex = null;
 		this.tokenstr = str;
 		this.tokentype = determineType();
 		this.linenum = linenum;
 	}
 
 	public Type determineType() {
-		if (Terminal.determineTokenType(tokenstr) != null) {
+		term = Terminal.determineTokenType(tokenstr);
+		lex = Lexical.determineTokenType(tokenstr);
+		if (term != null) {
 			return Type.TERMINAL;
-		} else if (Lexical.determineTokenType(tokenstr) != null) {
+		} else if (lex != null) {
 			return Type.LEXICAL;
 		} else {
 			return Type.INVALID;
@@ -87,5 +95,33 @@ public class MiniREToken {
 	 */
 	public void setLinenum(int linenum) {
 		this.linenum = linenum;
+	}
+
+	/**
+	 * @return the term
+	 */
+	public Terminal getTerm() {
+		return term;
+	}
+
+	/**
+	 * @param term the term to set
+	 */
+	public void setTerm(Terminal term) {
+		this.term = term;
+	}
+
+	/**
+	 * @return the lex
+	 */
+	public Lexical getLex() {
+		return lex;
+	}
+
+	/**
+	 * @param lex the lex to set
+	 */
+	public void setLex(Lexical lex) {
+		this.lex = lex;
 	}
 }

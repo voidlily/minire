@@ -44,6 +44,7 @@ public class MiniRE {
 				//Then we can actually run the program.
 				programfile = args[0];
 				if(programfile.endsWith(".mre")) {
+					//Make sure the program is actually of type '.mre'.
 					startInterpreter(startParsing());
 				}
 				else {
