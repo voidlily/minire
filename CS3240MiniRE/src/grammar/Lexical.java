@@ -1,7 +1,9 @@
 /**
- * 
+ *
  */
 package grammar;
+
+import minire.CharacterMatcher;
 
 /**
  * @author Incomprehensible Penguin Arena
@@ -16,7 +18,7 @@ public enum Lexical {
 	REGEX ("REGEX", "'\'([a-zA-Z0-9_]|\\ |\\\\|\\*|\\+|\\?|\\||\\[|\\]\\(|\\)|\\.|\\'|\\\"|\\[.\\])*\''"),
 	ASCIISTR ("ASCIISTR", "'\".\"'"),
 	EMPTYSTR ("EMPTYSTR", "");
-	
+
 	private final String str;
 	@SuppressWarnings("unused")
 	private final String regularexp;
@@ -24,7 +26,7 @@ public enum Lexical {
 		this.str = str;
 		this.regularexp = regex;
 	}
-	
+
 	/**
 	 * Determines which Lexical the passed in string belongs to and returns that.
 	 * @param tok
@@ -39,7 +41,7 @@ public enum Lexical {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Allows us to check to see if a string matches its Lexical class.
 	 * @param str
@@ -54,10 +56,10 @@ public enum Lexical {
 		case ID:
 			//Length must be 1-10 characters long.
 			if(str.length() > 0 && str.length() <= 10) {
-				if(isLetter(str.charAt(0))) {
+				if(CharacterMatcher.isLetter(str.charAt(0))) {
 					result = true;
 					for(i = 1; i < str.length(); i++) {
-						if(isLetterOrDigit(str.charAt(i)) || str.charAt(i) == '_') {
+						if(CharacterMatcher.isLetterOrDigit(str.charAt(i)) || str.charAt(i) == '_') {
 							result = true;
 						}
 						else {
@@ -76,7 +78,7 @@ public enum Lexical {
 				if(str.charAt(0) == '-') {
 					//Then is a negative number.
 					for(i = 1; i < str.length(); i++) {
-						if(isDigit(str.charAt(i))) {
+						if(CharacterMatcher.isDigit(str.charAt(i))) {
 							result = true;
 						}
 						else {
@@ -88,7 +90,7 @@ public enum Lexical {
 				else{
 					//Then not a negative number.
 					for(i = 0; i < str.length(); i++) {
-						if(isDigit(str.charAt(i))) {
+						if(CharacterMatcher.isDigit(str.charAt(i))) {
 							result = true;
 						}
 						else {
@@ -104,7 +106,7 @@ public enum Lexical {
 			if(str.length() >= 2) {
 				if(str.charAt(0) == '\'') {
 					for(i = 1; i < str.length() - 1; i++) {
-						if(isLetterOrDigit(str.charAt(i))) {
+						if(CharacterMatcher.isLetterOrDigit(str.charAt(i))) {
 							//These are perfectly safe as is.
 						}
 						else if(str.charAt(i) == '\\') {
@@ -177,7 +179,7 @@ public enum Lexical {
 							//Want to make sure we aren't escaping the end quote by testing:
 							//j != str.length() - 2
 							if(i == str.length() - 2) {
-								//Then we are trying to escape the final quote, or it 
+								//Then we are trying to escape the final quote, or it
 								//doesn't end with a quote.
 								result = false;
 								break;
@@ -212,35 +214,10 @@ public enum Lexical {
 		case EMPTYSTR:
 			break;
 		}
-		
+
 		return result;
 	}
 
-	private static boolean isLetter(char c) {
-		int asciival = c;
-		if((asciival >= 65 && asciival <= 90) || (asciival >= 97 && asciival <= 122)) {
-			return true;
-		}
-		return false;
-	}
-	
-	private static boolean isDigit(char c) {
-		int asciival = c;
-		if(asciival >= 48 && asciival <= 57) {
-			return true;
-		}
-		return false;
-	}
-	
-	private static boolean isLetterOrDigit(char c) {
-		/* For reference - ASCII breakdown:
-		 * [A-Z] = 65 - 90
-		 * [a-z] = 97 - 122
-		 * [0-9] = 48 - 57
-		 */
-		return (isDigit(c) || isLetter(c));
-	}
-	
 	private static boolean regexEscapeInBrackets(char c) {
 		/*
 		 * '\', '[', ']', '^', '-'
@@ -257,7 +234,7 @@ public enum Lexical {
 		}
 		return result;
 	}
-	
+
 	private static boolean regexEscapeOutsideBrackets(char c) {
 		/*
 		 * ' ', '\', '*', '+', '?', '|', '[', ']', '(', ')', '.', ''', '"'
