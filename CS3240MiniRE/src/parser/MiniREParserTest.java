@@ -40,6 +40,11 @@ public class MiniREParserTest {
 	}
 
 	@Test
+	public void testGetAllTokens() {
+		System.out.println(tokens);
+	}
+	
+	@Test
 	public void testGetTokensByLines() throws IOException {
 		MiniREParser p = new MiniREParser();
 		List<List<MiniREToken>> a = p.getTokensByLines(tokens);
@@ -52,6 +57,12 @@ public class MiniREParserTest {
 			}
 			System.out.println("");
 		}*/
+	}
+	
+	@Test
+	public void testRun() throws IOException {
+		MiniREParser p = new MiniREParser();
+		p.run(tokens);
 	}
 
 }
