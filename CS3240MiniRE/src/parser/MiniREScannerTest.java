@@ -1,6 +1,9 @@
 package parser;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
+
+import grammar.Lexical;
+import grammar.Terminal;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -70,5 +73,28 @@ public class MiniREScannerTest {
 			System.out.println(tok.getTokenstr());
 		}
 
+	}
+
+	@Test
+	public void testLeadingZero() throws IOException {
+		Reader r = new StringReader("-045");
+
+		MiniREScanner s = new MiniREScanner(r);
+
+		List<MiniREToken> tokens = s.scan();
+		assertFalse("Expected token to not be INTNUM, got " + tokens.get(0).getLex(),
+				tokens.get(0).getLex() == Lexical.INTNUM);
+	}
+
+	@Test
+	public void testSoleNegative() throws IOException {
+		Reader r = new StringReader("-");
+
+		MiniREScanner s = new MiniREScanner(r);
+
+		List<MiniREToken> tokens = s.scan();
+		assertFalse("Expected token to not be INTNUM, got " + tokens.get(0).getLex(),
+				tokens.get(0).getLex() == Lexical.INTNUM);
+		assertEquals(tokens.get(0).getTerm(), Terminal.minus);
 	}
 }
