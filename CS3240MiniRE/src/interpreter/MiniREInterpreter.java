@@ -30,7 +30,6 @@ public class MiniREInterpreter {
 	}
 
 	public void assign(String id, Object value) {
-		assert(!sym.containsKey(id));
 		sym.put(id, value);
 	}
 
@@ -78,6 +77,13 @@ public class MiniREInterpreter {
 			break;
 		}
 		return retnum;
+	}
+
+	/**
+	 * @return the sym
+	 */
+	public HashMap<String, Object> getSym() {
+		return sym;
 	}
 
 	// TODO potentially obsolete code
