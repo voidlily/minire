@@ -49,6 +49,13 @@ public class MiniREInterpreter {
 		return null;
 	}
 
+	/**
+	 * @return the sym
+	 */
+	public HashMap<String, Object> getSym() {
+		return sym;
+	}
+
 	// TODO potentially obsolete code
 	public void interpretTokens(List<MiniREToken> tokencollection) {
 		sym = new HashMap<String, Object>();
