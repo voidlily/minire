@@ -24,9 +24,14 @@ public class MiniREInterpreter {
 
 	// TODO these methods currently return null, change when better defined
 
-	public Object assign(String id, Object value) {
-		//TODO auto-generated method stub
-		return null;
+	public void assignVar(String id, String value) {
+		assert(sym.containsKey(id));
+		sym.put(id, sym.get(value));
+	}
+
+	public void assign(String id, Object value) {
+		assert(!sym.containsKey(id));
+		sym.put(id, value);
 	}
 
 	public Object replace(String regex, String repstr, String inputfile, String outputfile) {
