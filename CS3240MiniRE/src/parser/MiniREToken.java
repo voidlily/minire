@@ -153,4 +153,8 @@ public class MiniREToken {
 	public void setSpaceAfterToken(boolean spaceAfterToken) {
 		this.spaceAfterToken = spaceAfterToken;
 	}
+	
+	public String toString() {
+		return this.getLinenum() + " " + this.getTokenstr();
+	}
 }
