@@ -97,6 +97,16 @@ public class MiniREInterpreter {
 		}
 		System.out.print("}\n");
 	}
+	
+	/**
+	 * This is the function that is called for the '#' operator. It takes in a 
+	 * List object and returns the length/size of the list.
+	 * @param val
+	 * @return
+	 */
+	public int countOp(List<Object> val) {
+		return val.size();
+	}
 
 	/**
 	 * @return the sym
