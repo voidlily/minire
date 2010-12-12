@@ -22,7 +22,7 @@ public enum Lexical {
 	private final String str;
 	@SuppressWarnings("unused")
 	private final String regularexp;
-	Lexical(String str, String regex) {
+	Lexical(final String str, final String regex) {
 		this.str = str;
 		this.regularexp = regex;
 	}
@@ -33,7 +33,7 @@ public enum Lexical {
 	 * @return null if the passed in string matches none of the Lexicals, a Lexical
 	 * if it does match one of the Lexicals.
 	 */
-	public static Lexical determineTokenType(String tok) {
+	public static Lexical determineTokenType(final String tok) {
 		for(Lexical l : Lexical.values()) {
 			if(checkStrAgainstLexicalType(tok, l)) {
 				return l;
@@ -49,7 +49,7 @@ public enum Lexical {
 	 * @return return true if the string matches the passed in lexical class,
 	 * else returns false.
 	 */
-	public static boolean checkStrAgainstLexicalType(String str, Lexical lex) {
+	public static boolean checkStrAgainstLexicalType(final String str, final Lexical lex) {
 		boolean result = false;
 		int i;
 		switch(lex) {
@@ -218,7 +218,7 @@ public enum Lexical {
 		return result;
 	}
 
-	private static boolean regexEscapeInBrackets(char c) {
+	private static boolean regexEscapeInBrackets(final char c) {
 		/*
 		 * '\', '[', ']', '^', '-'
 		 */
@@ -235,7 +235,7 @@ public enum Lexical {
 		return result;
 	}
 
-	private static boolean regexEscapeOutsideBrackets(char c) {
+	private static boolean regexEscapeOutsideBrackets(final char c) {
 		/*
 		 * ' ', '\', '*', '+', '?', '|', '[', ']', '(', ')', '.', ''', '"'
 		 */

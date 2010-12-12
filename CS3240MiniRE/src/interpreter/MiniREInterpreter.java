@@ -25,38 +25,39 @@ public class MiniREInterpreter {
 
 	// TODO these methods currently return null, change when better defined
 
-	public void assignVar(String id, String value) {
+	public void assignVar(final String id, final String value) {
 		assert(sym.containsKey(value));
 		sym.put(id, sym.get(value));
 	}
 
-	public void assign(String id, Object value) {
+	public void assign(final String id, final Object value) {
 		sym.put(id, value);
 	}
 
-	public Object replace(String regex, String repstr, String inputfile, String outputfile) {
+	public Object replace(final String regex, final String repstr, final String inputfile,
+			final String outputfile) {
 		//TODO auto-generated method stub
 		return null;
 	}
 
-	public List<Match> find(String regex, String filename) {
+	public List<Match> find(final String regex, final String filename) {
 		//TODO auto-generated method stub
 		List<Match> l = new ArrayList<Match>();
 		return l;
 	}
 
-	public Object binaryOp(String a, String op, String b) {
+	public Object binaryOp(final String a, final String op, final String b) {
 		//TODO auto-generated method stub
 		return null;
 	}
 
-	public List<Match> union(List<Match> a, List<Match> b) {
+	public List<Match> union(final List<Match> a, final List<Match> b) {
 		List<Match> union = new ArrayList<Match>(a);
 		union.addAll(b);
 		return union;
 	}
 
-	public List<Match> intersect(List<Match> a, List<Match> b) {
+	public List<Match> intersect(final List<Match> a, final List<Match> b) {
 		List<Match> intersect = new ArrayList<Match>(a);
 		intersect.retainAll(b);
 		return intersect;

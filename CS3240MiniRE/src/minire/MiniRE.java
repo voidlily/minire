@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package minire;
 
@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class MiniRE {
 	private static String programfile;
-	
+
 	public static List<MiniREToken> startParsing() {
 		MiniREParser parse = new MiniREParser();
 		parse.fileToParse(programfile);
@@ -27,8 +27,8 @@ public class MiniRE {
 			return null;
 		}
 	}
-	
-	public static void startInterpreter(List<MiniREToken> tokens) {
+
+	public static void startInterpreter(final List<MiniREToken> tokens) {
 		if(tokens == null) {
 			//Then there was an error with the parser somewhere.
 			System.out.println("Failed to start the interpreter, see parsing errors.");
@@ -36,7 +36,7 @@ public class MiniRE {
 		MiniREInterpreter interp = new MiniREInterpreter();
 		interp.interpretTokens(tokens);
 	}
-	
+
 	public static void main(String[] args) {
 		if(args.length == 1) {
 			File tempfile = new File(args[0]);

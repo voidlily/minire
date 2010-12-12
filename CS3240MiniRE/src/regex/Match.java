@@ -23,7 +23,7 @@ public class Match {
 	/**
 	 * @param match the match to set
 	 */
-	public void setMatch(String match) {
+	public void setMatch(final String match) {
 		this.match = match;
 	}
 
@@ -37,7 +37,7 @@ public class Match {
 	/**
 	 * @param file the file to set
 	 */
-	public void setFile(String file) {
+	public void setFile(final String file) {
 		this.file = file;
 	}
 
@@ -51,7 +51,7 @@ public class Match {
 	/**
 	 * @param row the row to set
 	 */
-	public void setRow(int row) {
+	public void setRow(final int row) {
 		this.row = row;
 	}
 
@@ -65,7 +65,7 @@ public class Match {
 	/**
 	 * @param col the col to set
 	 */
-	public void setCol(int col) {
+	public void setCol(final int col) {
 		this.col = col;
 	}
 

@@ -1,11 +1,11 @@
 /**
- * 
+ *
  */
 package grammar;
 
 /**
  * @author Incomprehensible Penguin Arena
- * 
+ *
  */
 
 public enum MiniREGrammar {
@@ -20,22 +20,22 @@ public enum MiniREGrammar {
 	//Bonus part.
 	CONDITION ("<condition>", new GrammarRule[] {GrammarRule.CONDITION}),
 	BOOLOP ("<bool-op>", new GrammarRule[] {GrammarRule.BOOLOP1, GrammarRule.BOOLOP2, GrammarRule.BOOLOP3, GrammarRule.BOOLOP4, GrammarRule.BOOLOP5, GrammarRule.BOOLOP6});
-	
+
 	private final String rulename;
 	private final GrammarRule[] rules;
-	MiniREGrammar(String name, GrammarRule[] rules) {
+	MiniREGrammar(final String name, final GrammarRule[] rules) {
 		this.rulename = name;
 		this.rules = rules;
 	}
-	
+
 	public String getRulename() {
 		return this.rulename;
 	}
-	
+
 	public GrammarRule[] getRules() {
 		return this.rules;
 	}
-	
+
 	public String toString() {
 		return getRulename();
 	}

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package grammar;
 import parser.MiniREToken;
@@ -42,22 +42,22 @@ public enum GrammarRule {
 	BOOLOP4 (">", new MiniREToken.Type[] {MiniREToken.Type.TERMINAL}),
 	BOOLOP5 ("<=", new MiniREToken.Type[] {MiniREToken.Type.TERMINAL}),
 	BOOLOP6 (">=", new MiniREToken.Type[] {MiniREToken.Type.TERMINAL});
-	
+
 	private final String rulestr;
 	private final MiniREToken.Type[] ruletypes;
-	GrammarRule(String rulestr, MiniREToken.Type[] ruletypes) {
+	GrammarRule(final String rulestr, final MiniREToken.Type[] ruletypes) {
 		this.rulestr = rulestr;
 		this.ruletypes = ruletypes;
 	}
-	
+
 	public String getRulestr() {
 		return this.rulestr;
 	}
-	
+
 	public MiniREToken.Type[] getRuletypes() {
 		return ruletypes;
 	}
-	
+
 	public String toString() {
 		return getRulestr();
 	}
