@@ -46,9 +46,59 @@ public class MiniREInterpreter {
 		return l;
 	}
 
-	public Object binaryOp(final String a, final String op, final String b) {
-		//TODO auto-generated method stub
-		return null;
+	public Object binaryOp(String a, String op, String b) {
+		int inta = CharacterHelper.convertStringToInt(a);
+		int intb = CharacterHelper.convertStringToInt(b);
+		return binaryOp(inta, op, intb);
+	}
+
+	public Object binaryOp(String a, String op, int b) {
+		int inta = CharacterHelper.convertStringToInt(a);
+		return binaryOp(inta, op, b);
+	}
+
+	public Object binaryOp(int a, String op, String b) {
+		int intb = CharacterHelper.convertStringToInt(b);
+		return binaryOp(a, op, intb);
+	}
+
+	public Object binaryOp(int a, String op, int b) {
+		int retnum = 0;
+		//Should be of length 1.
+		switch(op.charAt(0)) {
+		case '+':
+			retnum = a + b;
+			break;
+		case '-':
+			retnum = a - b;
+			break;
+		case '*':
+			retnum = a * b;
+			break;
+		case '/':
+			retnum = a / b;
+			break;
+		}
+		return retnum;
+	}
+
+	public void printOp(int val) {
+		System.out.println(val);
+	}
+
+	public void printOp(String val) {
+		System.out.println(val);
+	}
+
+	public void printOp(List<Object> val) {
+		System.out.print("{");
+		for(int i = 0; i < val.size(); i++) {
+			System.out.print(val.get(i).toString());
+			if(i < val.size() - 1) {
+				System.out.print(",");
+			}
+		}
+		System.out.print("}\n");
 	}
 
 	public List<Match> union(final List<Match> a, final List<Match> b) {
