@@ -78,6 +78,25 @@ public class MiniREInterpreter {
 		}
 		return retnum;
 	}
+	
+	public void printOp(int val) {
+		System.out.println(val);
+	}
+	
+	public void printOp(String val) {
+		System.out.println(val);
+	}
+	
+	public void printOp(List<Object> val) {
+		System.out.print("{");
+		for(int i = 0; i < val.size(); i++) {
+			System.out.print(val.get(i).toString());
+			if(i < val.size() - 1) {
+				System.out.print(",");
+			}
+		}
+		System.out.print("}\n");
+	}
 
 	/**
 	 * @return the sym
