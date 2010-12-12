@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import interpreter.MiniREInterpreter;
+import parser.MiniREToken.Type;
+
 import minire.CharacterHelper;
 
 /**
@@ -38,6 +41,8 @@ public class MiniREParser {
 	public MiniREParser() {
 		scanner = new MiniREScanner(programfilereader);
 	}
+	
+	private MiniREInterpreter interp = new MiniREInterpreter();
 
 	/**
 	 * Sets the program file reader that is going to be used to read the program
@@ -104,57 +109,136 @@ public class MiniREParser {
 			token = itr.next();
 			return true;
 		} else {
-			System.err.println("token does not match expected value on line "+token.getLinenum());
+			System.err.println("token does not match expected value "+ExpectedName+" on line "+token.getLinenum());
+			return false;
+		}
+	}
+	
+	private boolean match(Terminal term) {
+		if (token.getTokentype()==MiniREToken.Type.TERMINAL && token.getTerm() == term) {
+			token = itr.next();
+			return true;
+		} else {
+			System.err.println("token does not match Terminal "+term+" on line "+token.getLinenum());
+			return false;
+		}
+	}
+	
+	private boolean match(Lexical lex) {
+		if (token.getTokentype()==MiniREToken.Type.LEXICAL && token.getLex() == lex) {
+			token = itr.next();
+			return true;
+		} else {
+			System.err.println("token does not match Lexical "+lex+" on line "+token.getLinenum());
+			return false;
+		}
+	}
+	
+	/** matches current token without iterating forward */
+	private boolean cmatch(String ExpectedName) {
+		MiniREToken ExpectedToken = new MiniREToken(ExpectedName);
+		if (token.getTokenstr().equals(ExpectedToken.getTokenstr()) && token.getTokentype().equals(ExpectedToken.getTokentype())){
+			return true;
+		} else {
+			System.err.println("token does not match expected value "+ExpectedName+" on line "+token.getLinenum());
+			return false;
+		}
+	}
+	
+	/** matches current token without iterating forward */
+	private boolean cmatch(Terminal term) {
+		if (token.getTokentype()==MiniREToken.Type.TERMINAL && token.getTerm() == term) {
+			return true;
+		} else {
+			System.err.println("token does not match Terminal "+term+" on line "+token.getLinenum());
+			return false;
+		}
+	}
+	
+	/** matches current token without iterating forward */
+	private boolean cmatch(Lexical lex) {
+		if (token.getTokentype()==MiniREToken.Type.LEXICAL && token.getLex() == lex) {
+			return true;
+		} else {
+			System.err.println("token does not match Lexical "+lex+" on line "+token.getLinenum());
+			return false;
+		}
+	}
+	
+	/** matches next token without iterating forward */
+	private boolean nmatch(String ExpectedName) {
+		MiniREToken ExpectedToken = new MiniREToken(ExpectedName);
+		if (itr.next().getTokenstr().equals(ExpectedToken.getTokenstr()) && itr.next().getTokentype().equals(ExpectedToken.getTokentype())){
+			return true;
+		} else {
+			System.err.println("token does not match expected value "+ExpectedName+" on line "+itr.next().getLinenum());
+			return false;
+		}
+	}
+	
+	/** matches next token without iterating forward */
+	private boolean nmatch(Terminal term) {
+		if (itr.next().getTokentype()==MiniREToken.Type.TERMINAL && itr.next().getTerm() == term) {
+			return true;
+		} else {
+			System.err.println("token does not match Terminal "+term+" on line "+itr.next().getLinenum());
+			return false;
+		}
+	}
+	
+	/** matches next token without iterating forward */
+	private boolean nmatch(Lexical lex) {
+		if (itr.next().getTokentype()==MiniREToken.Type.LEXICAL && itr.next().getLex() == lex) {
+			return true;
+		} else {
+			System.err.println("token does not match Lexical "+lex+" on line "+itr.next().getLinenum());
 			return false;
 		}
 	}
 	
 	private void begin() {
 		//begin <statement-list> end
+		match("begin");
 		while(!token.getTokenstr().equals("end")){
 			statement();
 		}
+		if (token==null) {       
+			System.err.println("no matching end terminal");
+                }
 	}
 	
 	private void statement() {
 		//<statement> <statement-list>
-		token = itr.next();
-		if (token.getTokenstr().equals("replace")) {
+		if (cmatch("replace")) {
 				replace();
-		} else if (token.getTokenstr().equals("print")) {
+		} else if (cmatch("print")) {
 				print();
-		} else if (token.getTokenstr().equals("ID")) {
+		} else if (cmatch(Lexical.ID)) {
 				id();
 		}
 	}
 	
 	private void replace() {
 		//replace REGEX with ASCIISTR in <file-names> ;
-		token = itr.next();
-		if(token.getLex()==Lexical.REGEX) {
-			if(match("with")){
-				if(token.getLex()==Lexical.ASCIISTR) {
-					if(match("in")){
-						filenames();
-						match(";");
-					}
-				}
-			}
-			
-		} else {
-			System.err.println("invalid replace call on line "+token.getLinenum());
-		}
+			match("replace");
+			match(Lexical.REGEX);
+			match("with");
+			match(Lexical.ASCIISTR);
+			match("in");
+			filenames();
+			match(";");
 	}
 	
 	private void print() {
 		//print ( <exp-list> ) ;
+		match("print");
 		match("(");
 		exp_list();
 		match(")");
 	}
 	
 	private void exp_list() {
-		while(!token.getTokenstr().equals(")")){
+		while(!cmatch(")")){
 			exp();
 		}
 	}
@@ -162,14 +246,12 @@ public class MiniREParser {
 	private void filenames() {
 		String left = file();
 		match("->");
-		left+=file();
+		left+=" "+file();
 	}
 	
 	private String file() {
-		token = itr.next();
-		if(token.getLex()==Lexical.ASCIISTR) {
-			
-		}
+		cmatch(Lexical.ASCIISTR);
+		return token.getTokenstr();
 	}
 	
 	private void find() {
@@ -185,34 +267,58 @@ public class MiniREParser {
 		}
 	}
 	
-	private void id() {
-		switch(itr.next()){
-			case Terminal.assignment:
-				break;
-			else:
-				break;
+	private Object id() {
+		String id_name = token.getTokenstr();
+		Object val = null;
+		if (nmatch(":=")) {
+			token = itr.next();
+			match(":=");
+			val = exp();
+			interp.assign(id_name, val);
+		}  else {
+			val = interp.getSym().get(token.getTokenstr());
 		}
+		return val;
 	}
 	
-	private void exp() {
-		token left = token;
-		token = itr.next();
-		switch(token.getTerm()){
-			case mult:
-				token = itr.next();
-				
-				break;
-			case div:
-				break;
-			case plus:
-				break;
-			case minus:
-				break;
-			case semicolon:
-				return left;
-				break;
-			else:
-				break;
+	private boolean binop (int initial, String op) {
+		int b = 0;
+		if (nmatch(Lexical.INTNUM)) {
+			b = CharacterHelper.convertStringToInt(itr.next().getTokenstr());
+		} else if (nmatch(Lexical.ID)) {
+			String c = itr.next().getTokenstr();
+			if(interp.getSym().get(c) instanceof Integer) {
+				b = CharacterHelper.convertStringToInt(itr.next().getTokenstr());
+			} else {
+				System.err.println("line "+token.getLinenum()+" unable to perform mathematical binary operator on a non-Integer");
+			}
+		} else {
+			b = exp();
+		}
+		return interp.conditionOp(initial, op, b);
+	}
+	
+	private Integer exp() {
+		Object val= null;
+		if (match(Lexical.ID)){
+			val = id();
+		} else if (match(Lexical.INTNUM)){
+			val = CharacterHelper.convertStringToInt(token.getTokenstr());
+		} else if (match("(")) {
+			exp();
+			match(")");
+		}
+		
+		if (nmatch("+")||nmatch("-")||nmatch("*")||nmatch("/")) {
+			if(val instanceof Integer) {
+				binop((Integer) val, token.getTokenstr());
+			}
+		}
+		
+		if(val instanceof Integer) {
+			return (Integer) val;
+		} else {
+			return null;
 		}
 	}
 	

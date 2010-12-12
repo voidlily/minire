@@ -54,9 +54,4 @@ public class MiniREParserTest {
 		}*/
 	}
 
-	@Test
-	public void testGetRuleByLine() {
-		fail("Not yet implemented");
-	}
-
 }
