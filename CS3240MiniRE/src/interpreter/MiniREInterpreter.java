@@ -38,7 +38,7 @@ public class MiniREInterpreter {
 		return null;
 	}
 
-	public Object find(String regex, String filename) {
+	public List find(String regex, String filename) {
 		//TODO auto-generated method stub
 		return null;
 	}
