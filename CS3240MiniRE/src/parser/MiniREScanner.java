@@ -140,6 +140,8 @@ public class MiniREScanner {
 			}
 		}
 
+		MiniREToken tok = new MiniREToken(currTokStr, line, spaceBetweenTokens);
+		
 		while (next == ' ' || next == '\n' || next == '\t') {
 			if (next == ' ') {
 				spaceBetweenTokens = true;
@@ -149,7 +151,7 @@ public class MiniREScanner {
 //		if (Character.isDefined(next)) {
 //			System.out.print(next);
 //		}
-		MiniREToken tok = new MiniREToken(currTokStr, line, spaceBetweenTokens);
+		
 
 		currTokStr = "" + next;
 
