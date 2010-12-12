@@ -9,6 +9,12 @@ package interpreter;
 import grammar.Lexical;
 import grammar.Terminal;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +22,7 @@ import java.util.List;
 import minire.CharacterHelper;
 import parser.MiniREToken;
 import regex.Match;
+import regex.Regex;
 
 /**
  * @author Incomprehensible Penguin Arena
@@ -34,16 +41,50 @@ public class MiniREInterpreter {
 		sym.put(id, value);
 	}
 
-	public Object replace(final String regex, final String repstr, final String inputfile,
-			final String outputfile) {
-		//TODO auto-generated method stub
-		return null;
+	public void replace(final String regex, final String repstr, final String inputfile,
+			final String outputfile) throws IOException {
+		File input = new File(inputfile);
+		File output = new File(outputfile);
+		BufferedReader read = new BufferedReader(new FileReader(input));
+		List<String> lines = new ArrayList<String>();
+
+		String line = read.readLine();
+		while (line != null) {
+			lines.add(line);
+			line = read.readLine();
+		}
+
+		read.close();
+
+		Regex r = new Regex(regex);
+		r.replace(lines, repstr);
+
+		BufferedWriter write = new BufferedWriter(new FileWriter(output));
+		for (String s : lines) {
+			write.write(s);
+		}
+
+		write.close();
+
 	}
 
-	public List<Match> find(final String regex, final String filename) {
-		//TODO auto-generated method stub
-		List<Match> l = new ArrayList<Match>();
-		return l;
+	public List<Match> find(final String regex, final String filename) throws IOException {
+		File input = new File(filename);
+		BufferedReader read = new BufferedReader(new FileReader(input));
+		List<String> lines = new ArrayList<String>();
+
+		String line = read.readLine();
+		while (line != null) {
+			lines.add(line);
+			line = read.readLine();
+		}
+
+		read.close();
+
+		Regex r = new Regex(regex);
+		List<Match> matches = r.match(lines);
+
+		return matches;
 	}
 
 	public Object binaryOp(String a, String op, String b) {
@@ -100,9 +141,9 @@ public class MiniREInterpreter {
 		}
 		System.out.print("}\n");
 	}
-	
+
 	/**
-	 * This is the function that is called for the '#' operator. It takes in a 
+	 * This is the function that is called for the '#' operator. It takes in a
 	 * List object and returns the length/size of the list.
 	 * @param val
 	 * @return
@@ -110,7 +151,7 @@ public class MiniREInterpreter {
 	public int countOp(List<Object> val) {
 		return val.size();
 	}
-	
+
 	public boolean conditionOp(int a, String op, int b) {
 		boolean ret = false;
 		switch(op.charAt(0)) {

@@ -10,12 +10,12 @@ public class Regex {
 		this.str = str;
 	}
 
-	public List<Match> match(final String buf) {
+	public List<Match> match(final List<String> lines) {
 		// TODO stub
 		return null;
 	}
 
-	public void replace(final String buf, final String rep) {
+	public void replace(final List<String> lines, final String rep) {
 		// TODO stub
 	}
 }
