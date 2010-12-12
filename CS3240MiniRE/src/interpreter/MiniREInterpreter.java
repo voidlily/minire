@@ -22,6 +22,133 @@ import parser.MiniREToken;
 public class MiniREInterpreter {
 	private HashMap<String, Object> sym;
 
+	// TODO these methods currently return null, change when better defined
+
+	public void assignVar(String id, String value) {
+		assert(sym.containsKey(value));
+		sym.put(id, sym.get(value));
+	}
+
+	public void assign(String id, Object value) {
+		sym.put(id, value);
+	}
+
+	public Object replace(String regex, String repstr, String inputfile, String outputfile) {
+		//TODO auto-generated method stub
+		return null;
+	}
+
+	public Object find(String regex, String filename) {
+		//TODO auto-generated method stub
+		return null;
+	}
+
+	public Object binaryOp(String a, String op, String b) {
+		int inta = CharacterHelper.convertStringToInt(a);
+		int intb = CharacterHelper.convertStringToInt(b);
+		return binaryOp(inta, op, intb);
+	}
+	
+	public Object binaryOp(String a, String op, int b) {
+		int inta = CharacterHelper.convertStringToInt(a);
+		return binaryOp(inta, op, b);
+	}
+	
+	public Object binaryOp(int a, String op, String b) {
+		int intb = CharacterHelper.convertStringToInt(b);
+		return binaryOp(a, op, intb);
+	}
+	
+	public Object binaryOp(int a, String op, int b) {
+		int retnum = 0;
+		//Should be of length 1.
+		switch(op.charAt(0)) {
+		case '+':
+			retnum = a + b;
+			break;
+		case '-':
+			retnum = a - b;
+			break;
+		case '*':
+			retnum = a * b;
+			break;
+		case '/':
+			retnum = a / b;
+			break;
+		}
+		return retnum;
+	}
+	
+	public void printOp(int val) {
+		System.out.println(val);
+	}
+	
+	public void printOp(String val) {
+		System.out.println(val);
+	}
+	
+	public void printOp(List<Object> val) {
+		System.out.print("{");
+		for(int i = 0; i < val.size(); i++) {
+			System.out.print(val.get(i).toString());
+			if(i < val.size() - 1) {
+				System.out.print(",");
+			}
+		}
+		System.out.print("}\n");
+	}
+	
+	/**
+	 * This is the function that is called for the '#' operator. It takes in a 
+	 * List object and returns the length/size of the list.
+	 * @param val
+	 * @return
+	 */
+	public int countOp(List<Object> val) {
+		return val.size();
+	}
+	
+	public boolean conditionOp(int a, String op, int b) {
+		boolean ret = false;
+		switch(op.charAt(0)) {
+		case '=':
+			if(op.length() > 1 && op.charAt(1) == '=') {
+				ret = (a == b);
+			}
+			break;
+		case '<':
+			if(op.length() > 1 && op.charAt(1) == '=') {
+				ret = (a <= b);
+			}
+			else {
+				ret = (a < b);
+			}
+			break;
+		case '>':
+			if(op.length() > 1 && op.charAt(1) == '=') {
+				ret = (a >= b);
+			}
+			else {
+				ret = (a > b);
+			}
+			break;
+		case '!':
+			if(op.length() > 1 && op.charAt(1) == '=') {
+				ret = (a != b);
+			}
+			break;
+		}
+		return ret;
+	}
+
+	/**
+	 * @return the sym
+	 */
+	public HashMap<String, Object> getSym() {
+		return sym;
+	}
+
+	// TODO potentially obsolete code
 	public void interpretTokens(List<MiniREToken> tokencollection) {
 		sym = new HashMap<String, Object>();
 		boolean ended = false;
@@ -168,6 +295,71 @@ public class MiniREInterpreter {
 				else {
 					//Then it is 'ID := ( <exp> );' 'ID := # <exp>;' '<exp> <bin-op> <exp>' or 'find REGEX in <file>'.
 				}
+			}
+
+			// Replace
+			// replace REGEX with ASCIISTR in "input.txt" -> "output.txt"
+			if(tok.getTokentype() == MiniREToken.Type.TERMINAL && tok.getTerm() == Terminal.replace) {
+				//Want to make sure the last token is a ';'
+				tok = tokens.get(tokens.size() - 1); // ;
+				if(tok.getTokentype() != MiniREToken.Type.TERMINAL || tok.getTerm() != Terminal.semicolon) {
+					System.out.println("The replace at line "
+							+ tokens.get(0).getLinenum() + " does not end with a ';'");
+					System.exit(0);
+				}
+
+				tok = tokens.get(2); // 'with'
+				if (tok.getTokentype() != MiniREToken.Type.TERMINAL || tok.getTerm() == Terminal.with) {
+					System.out.println("The replace at line "
+							+ tokens.get(0).getLinenum() + " does not contain a 'with'.");
+					System.exit(0);
+				}
+
+				tok = tokens.get(4); // 'in'
+				if (tok.getTokentype() != MiniREToken.Type.TERMINAL || tok.getTerm() == Terminal.in) {
+					System.out.println("The replace at line "
+							+ tokens.get(0).getLinenum() + " does not contain an 'in'.");
+					System.exit(0);
+				}
+
+				tok = tokens.get(6); // ->
+				if (tok.getTokentype() != MiniREToken.Type.TERMINAL || tok.getTerm() == Terminal.arrow) {
+					System.out.println("The replace at line "
+							+ tokens.get(0).getLinenum() + " does not contain an arrow.");
+					System.exit(0);
+				}
+
+				// extract the regex
+				tok = tokens.get(1); // regex
+				if (tok.getTokentype() != MiniREToken.Type.LEXICAL || tok.getLex() == Lexical.REGEX) {
+					System.out.println("The replace at line "
+							+ tokens.get(0).getLinenum() + " does not have a regex.");
+					System.exit(0);
+				}
+
+				// TODO: how to store the regex?
+
+				tok = tokens.get(4); // asciistr
+				if (tok.getTokentype() != MiniREToken.Type.LEXICAL || tok.getLex() == Lexical.ASCIISTR) {
+					System.out.println("The replace at line "
+							+ tokens.get(0).getLinenum() + " does not contain a replace string.");
+					System.exit(0);
+				}
+
+				tok = tokens.get(5); // input file
+				if (tok.getTokentype() != MiniREToken.Type.LEXICAL || tok.getLex() == Lexical.ASCIISTR) {
+					System.out.println("The replace at line "
+							+ tokens.get(0).getLinenum() + " does not contain an input file.");
+					System.exit(0);
+				}
+
+				tok = tokens.get(7); // output file
+				if (tok.getTokentype() != MiniREToken.Type.LEXICAL || tok.getLex() == Lexical.ASCIISTR) {
+					System.out.println("The replace at line "
+							+ tokens.get(0).getLinenum() + " does not contain an output file.");
+					System.exit(0);
+				}
+
 			}
 		}
 
