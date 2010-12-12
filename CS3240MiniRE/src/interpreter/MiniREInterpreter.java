@@ -57,10 +57,10 @@ public class MiniREInterpreter {
 		read.close();
 
 		Regex r = new Regex(regex);
-		r.replace(lines, repstr);
+		List<String> newlines = r.replace(lines, repstr);
 
 		BufferedWriter write = new BufferedWriter(new FileWriter(output));
-		for (String s : lines) {
+		for (String s : newlines) {
 			write.write(s);
 		}
 

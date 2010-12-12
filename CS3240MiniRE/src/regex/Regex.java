@@ -15,7 +15,8 @@ public class Regex {
 		return null;
 	}
 
-	public void replace(final List<String> lines, final String rep) {
+	public List<String> replace(final List<String> lines, final String rep) {
 		// TODO stub
+		return null;
 	}
 }
