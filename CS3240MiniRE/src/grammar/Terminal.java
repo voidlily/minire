@@ -53,4 +53,8 @@ public enum Terminal {
 		}
 		return null;
 	}
+	
+	public String toString() {
+		return str;
+	}
 }

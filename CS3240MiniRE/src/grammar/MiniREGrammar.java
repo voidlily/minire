@@ -35,4 +35,8 @@ public enum MiniREGrammar {
 	public GrammarRule[] getRules() {
 		return this.rules;
 	}
+	
+	public String toString() {
+		return getRulename();
+	}
 }

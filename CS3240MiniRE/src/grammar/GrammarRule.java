@@ -55,6 +55,10 @@ public enum GrammarRule {
 	}
 	
 	public MiniREToken.Type[] getRuletypes() {
-		return this.ruletypes;
+		return ruletypes;
+	}
+	
+	public String toString() {
+		return getRulestr();
 	}
 }
