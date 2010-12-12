@@ -19,6 +19,7 @@ public enum Lexical {
 	ASCIISTR ("ASCIISTR", "'\".\"'"),
 	EMPTYSTR ("EMPTYSTR", "");
 
+	@SuppressWarnings("unused")
 	private final String str;
 	@SuppressWarnings("unused")
 	private final String regularexp;
@@ -102,73 +103,7 @@ public enum Lexical {
 			}
 			break;
 		case REGEX:
-			result = true;
-			if(str.length() >= 2) {
-				if(str.charAt(0) == '\'') {
-					for(i = 1; i < str.length() - 1; i++) {
-						if(CharacterHelper.isLetterOrDigit(str.charAt(i))) {
-							//These are perfectly safe as is.
-						}
-						else if(str.charAt(i) == '\\') {
-							//Then check the next character to see what we are escaping.
-							if(regexEscapeOutsideBrackets(str.charAt(i + 1))) {
-								//Then we are escaping something we are supposed to.
-								i++;
-							}
-							else {
-								//We don't need to escape this character.
-								result = false;
-								break;
-							}
-						}
-						else if(str.charAt(i) == '[') {
-							/* Now we are inside [], must ensure that:
-							 * * There are no nested []
-							 * * We escape the necessary characters inside the []
-							 */
-							for(int j = i + 1; j < str.length() - 1; j++) {
-								if(str.charAt(j) == ']') {
-									//Then we are closing the []s.
-									break;
-								}
-								else if(str.charAt(j) == '\\') {
-									//Then is the next character something that should be escaped?
-									if(regexEscapeInBrackets(str.charAt(j + 1))) {
-										//We should be escaping this character.
-										j++;
-									}
-									else {
-										result = false;
-										break;
-									}
-								}
-								else if(regexEscapeInBrackets(str.charAt(j))) {
-									//Then should have been escaped.
-									result = false;
-									break;
-								}
-							}
-						}
-						else if(regexEscapeOutsideBrackets(str.charAt(i))) {
-							//Then we hit something that likely should be escaped and isn't.
-							result = false;
-							break;
-						}
-					}
-					if(result && str.charAt(str.length() - 1) == '\'') {
-						result = true;
-					}
-					else {
-						result = false;
-					}
-				}
-				else {
-					result = false;
-				}
-			}
-			else {
-				result = false;
-			}
+			result = checkValidRegex(str);
 			break;
 		case ASCIISTR:
 			//Make sure that the string is at least ""
@@ -256,6 +191,173 @@ public enum Lexical {
 		case '"':
 			result = true;
 			break;
+		}
+		return result;
+	}
+	
+	public static boolean checkValidRegex(final String str) {
+		boolean result = false;
+		int i = 0;
+		char c;
+		if(str.length() < 2) {
+			//A valid regex has at least the two single quotes.
+			return result;
+		}
+		else {
+			//This will catch any regex with at least the single quotes.
+			if(str.charAt(i) != '\'') {
+				//Must start with a single quote.
+				return result;
+			}
+			i++;
+			//Want to check the last character of the string separately.
+			for(; i < str.length() - 1; i++) {
+				c = str.charAt(i);
+				//Check to make sure it is an ASCII printable character first.
+				if((int) c < 32 || (int) c > 126) {
+					return result;
+				}
+				
+				if(c == '\\') {
+					//Then we are supposed to be escaping something.
+					i++;
+					c = str.charAt(i);
+					if(!regexEscapeOutsideBrackets(c)) {
+						//Then we are escaping something that didn't need to be escaped.
+						return result;
+					}
+					if(i >= str.length() - 1) {
+						//Then we are escaping the final single quote, which is
+						//unacceptable.
+						return result;
+					}
+				}
+				else if(c == '.') {
+					//Then any ASCII printable character is allowed.
+				}
+				else if(c == '[') {
+					//Handle special parsing for the character class [].
+					//Look at the next character.
+					i++;
+					if(str.charAt(i) == '^') {
+						//Then we want to go to the next character.
+						i++;
+					}
+					for(int j = i; j < str.length() - 2; j++) {
+						c = str.charAt(j);
+						if(c == '\\') {
+							j++;
+							c = str.charAt(j);
+							if(!regexEscapeInBrackets(c)) {
+								return result;
+							}
+						}
+						else if(c == '-') {
+							if(checkASCIIPrintable(str.charAt(j - 1)) && checkASCIIPrintable(str.charAt(j + 1))) {
+								//Checking that before and after the dash is ASCII printable.
+								if(regexEscapeInBrackets(str.charAt(j - 1))) {
+									//Then make sure it was escaped.
+									if(str.charAt(j - 2) != '\\') {
+										return result;
+									}
+								}
+								if(regexEscapeInBrackets(str.charAt(j + 1))) {
+									//This shouldn't be part of a character class,
+									//unless it is the escape character escaping
+									//something else.
+									if(str.charAt(j + 1) == '\\') {
+										if(!regexEscapeInBrackets(str.charAt(j + 2))) {
+											return result;
+										}
+									}
+								}
+							}
+							else {
+								return result;
+							}
+						}
+						else if(c == ']') {
+							//Want to go back a character so that we can reliably increment
+							//by one character after the for loop.
+							i = j;
+							break;
+						}
+						else if(regexEscapeInBrackets(c)) {
+							return result;
+						}
+						i = j;
+					}
+					if(c != ']') {
+						i++;
+						c = str.charAt(i);
+						if(c != ']') {
+							//If we still haven't found the ']', then return false.
+							return result;
+						}
+					}
+				}
+				else if(c == '|') {
+					//Make sure that the next character is not the '|' again.
+					i++;
+					c = str.charAt(i);
+					if(c == '|') {
+						return result;
+					}
+				}
+				else if(c == '(') {
+					if(!matchParens(str.substring(i))) {
+						return result;
+					}
+				}
+				else if(c == ')') {
+					continue;
+				}
+				else if(c == '+' || c == '*' || c == '?') {
+					continue;
+				}
+				else if(regexEscapeOutsideBrackets(c)) {
+					return result;
+				}
+			}
+			if(str.charAt(i) != '\'') {
+				return result;
+			}
+			else {
+				result = true;
+			}
+		}
+		return result;
+	}
+	
+	private static boolean checkASCIIPrintable(char c) {
+		return ((int) c >= 32 && (int) c <= 126);
+	}
+	
+	private static boolean matchParens(String str) {
+		boolean result = false;
+		int numparens = 0;
+		char c;
+		for(int i = 0; i < str.length(); i++) {
+			c = str.charAt(i);
+			if(c == '(') {
+				numparens++;
+			}
+			else if(c == ')') {
+				numparens--;
+				if(numparens == 0) {
+					result = true;
+					break;
+				}
+				else if(numparens < 0) {
+					break;
+				}
+			}
+		}
+		if(numparens == 0) {
+			result = true;
+		}
+		else {
+			result = false;
 		}
 		return result;
 	}
