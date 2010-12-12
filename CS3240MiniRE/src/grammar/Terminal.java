@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package grammar;
 
@@ -39,13 +39,13 @@ public enum Terminal {
 	greaterbool (">"),
 	lessequalbool ("<="),
 	greaterequalbool (">=");
-	
+
 	private final String str;
-	Terminal(String str) {
+	Terminal(final String str) {
 		this.str = str;
 	}
-	
-	public static Terminal determineTokenType(String tok) {
+
+	public static Terminal determineTokenType(final String tok) {
 		for(Terminal t : Terminal.values()) {
 			if(tok.equals(t.str)) {
 				return t;
@@ -53,7 +53,7 @@ public enum Terminal {
 		}
 		return null;
 	}
-	
+
 	public String toString() {
 		return str;
 	}
