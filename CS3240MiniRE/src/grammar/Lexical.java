@@ -79,6 +79,12 @@ public enum Lexical {
 				if(str.charAt(0) == '-') {
 					//Then is a negative number.
 					for(i = 1; i < str.length(); i++) {
+						// leading zeros are invalid
+						if (str.length() > 2 && str.charAt(1) == '0') {
+							// kind of annoying because adds an extra n checks
+							result = false;
+							break;
+						}
 						if(CharacterHelper.isDigit(str.charAt(i))) {
 							result = true;
 						}
@@ -91,6 +97,11 @@ public enum Lexical {
 				else{
 					//Then not a negative number.
 					for(i = 0; i < str.length(); i++) {
+						if (str.charAt(0) == '0') {
+							// kind of annoying because adds an extra n checks
+							result = false;
+							break;
+						}
 						if(CharacterHelper.isDigit(str.charAt(i))) {
 							result = true;
 						}
@@ -194,7 +205,7 @@ public enum Lexical {
 		}
 		return result;
 	}
-	
+
 	public static boolean checkValidRegex(final String str) {
 		boolean result = false;
 		int i = 0;
@@ -217,7 +228,7 @@ public enum Lexical {
 				if((int) c < 32 || (int) c > 126) {
 					return result;
 				}
-				
+
 				if(c == '\\') {
 					//Then we are supposed to be escaping something.
 					i++;
@@ -328,11 +339,11 @@ public enum Lexical {
 		}
 		return result;
 	}
-	
+
 	private static boolean checkASCIIPrintable(char c) {
 		return ((int) c >= 32 && (int) c <= 126);
 	}
-	
+
 	private static boolean matchParens(String str) {
 		boolean result = false;
 		int numparens = 0;
