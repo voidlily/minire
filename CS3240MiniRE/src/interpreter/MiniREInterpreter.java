@@ -45,8 +45,39 @@ public class MiniREInterpreter {
 	}
 
 	public Object binaryOp(String a, String op, String b) {
-		//TODO auto-generated method stub
-		return null;
+		int inta = CharacterHelper.convertStringToInt(a);
+		int intb = CharacterHelper.convertStringToInt(b);
+		return binaryOp(inta, op, intb);
+	}
+	
+	public Object binaryOp(String a, String op, int b) {
+		int inta = CharacterHelper.convertStringToInt(a);
+		return binaryOp(inta, op, b);
+	}
+	
+	public Object binaryOp(int a, String op, String b) {
+		int intb = CharacterHelper.convertStringToInt(b);
+		return binaryOp(a, op, intb);
+	}
+	
+	public Object binaryOp(int a, String op, int b) {
+		int retnum = 0;
+		//Should be of length 1.
+		switch(op.charAt(0)) {
+		case '+':
+			retnum = a + b;
+			break;
+		case '-':
+			retnum = a - b;
+			break;
+		case '*':
+			retnum = a * b;
+			break;
+		case '/':
+			retnum = a / b;
+			break;
+		}
+		return retnum;
 	}
 
 	// TODO potentially obsolete code
