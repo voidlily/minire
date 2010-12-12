@@ -51,6 +51,7 @@ public class MiniREScanner {
 					// tok is null when we reach EOF
 					if (tok != null) {
 						if (tok.getTerm() == Terminal.greaterbool) {
+							// check for arrow token (> preceded by a -)
 							if (tokens.size() != 0) {
 								MiniREToken lasttok = tokens.get(tokens.size() - 1);
 								MiniREToken arrowtok = new MiniREToken("->", lasttok.getLinenum(), true);
@@ -61,6 +62,7 @@ public class MiniREScanner {
 							}
 						} else if (tok.getTokentype() == MiniREToken.Type.LEXICAL
 								&& tok.getLex() == Lexical.INTNUM) {
+							// check for 2 - -2 case
 							if (tokens.size() != 0) {
 								MiniREToken lasttok = tokens.get(tokens.size() - 1);
 								if (lasttok.getTerm() == Terminal.minus
@@ -141,7 +143,7 @@ public class MiniREScanner {
 		}
 
 		MiniREToken tok = new MiniREToken(currTokStr, line, spaceBetweenTokens);
-		
+
 		while (next == ' ' || next == '\n' || next == '\t') {
 			if (next == ' ') {
 				spaceBetweenTokens = true;
@@ -151,7 +153,7 @@ public class MiniREScanner {
 //		if (Character.isDefined(next)) {
 //			System.out.print(next);
 //		}
-		
+
 
 		currTokStr = "" + next;
 
