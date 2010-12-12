@@ -110,6 +110,39 @@ public class MiniREInterpreter {
 	public int countOp(List<Object> val) {
 		return val.size();
 	}
+	
+	public boolean conditionOp(int a, String op, int b) {
+		boolean ret = false;
+		switch(op.charAt(0)) {
+		case '=':
+			if(op.length() > 1 && op.charAt(1) == '=') {
+				ret = (a == b);
+			}
+			break;
+		case '<':
+			if(op.length() > 1 && op.charAt(1) == '=') {
+				ret = (a <= b);
+			}
+			else {
+				ret = (a < b);
+			}
+			break;
+		case '>':
+			if(op.length() > 1 && op.charAt(1) == '=') {
+				ret = (a >= b);
+			}
+			else {
+				ret = (a > b);
+			}
+			break;
+		case '!':
+			if(op.length() > 1 && op.charAt(1) == '=') {
+				ret = (a != b);
+			}
+			break;
+		}
+		return ret;
+	}
 
 	public List<Match> union(final List<Match> a, final List<Match> b) {
 		List<Match> union = new ArrayList<Match>(a);
