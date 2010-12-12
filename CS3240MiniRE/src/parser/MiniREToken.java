@@ -54,6 +54,10 @@ public class MiniREToken {
 		this.spaceAfterToken = spaceAfterToken;
 	}
 
+	public MiniREToken(String str) {
+		this(str, 0, true);
+	}
+
 	public Type determineType() {
 		term = Terminal.determineTokenType(tokenstr);
 		lex = Lexical.determineTokenType(tokenstr);

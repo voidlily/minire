@@ -18,7 +18,7 @@ import java.util.List;
 public class MiniRE {
 	private static String programfile;
 
-	public static List<MiniREToken> startParsing() {
+	public static List<MiniREToken> startParsing() throws IOException {
 		MiniREParser parse = new MiniREParser();
 		parse.fileToParse(programfile);
 		try {
@@ -34,10 +34,10 @@ public class MiniRE {
 			System.out.println("Failed to start the interpreter, see parsing errors.");
 		}
 		MiniREInterpreter interp = new MiniREInterpreter();
-		interp.interpretTokens(tokens);
+		//interp.interpretTokens(tokens);
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		if(args.length == 1) {
 			File tempfile = new File(args[0]);
 			if(tempfile.exists()) {
