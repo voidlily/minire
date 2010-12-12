@@ -15,6 +15,7 @@ import java.util.List;
 
 import minire.CharacterHelper;
 import parser.MiniREToken;
+import regex.Match;
 
 /**
  * @author Incomprehensible Penguin Arena
@@ -38,14 +39,27 @@ public class MiniREInterpreter {
 		return null;
 	}
 
-	public List find(String regex, String filename) {
+	public List<Match> find(String regex, String filename) {
 		//TODO auto-generated method stub
-		return null;
+		List<Match> l = new ArrayList<Match>();
+		return l;
 	}
 
 	public Object binaryOp(String a, String op, String b) {
 		//TODO auto-generated method stub
 		return null;
+	}
+
+	public List<Match> union(List<Match> a, List<Match> b) {
+		List<Match> union = new ArrayList<Match>(a);
+		union.addAll(b);
+		return union;
+	}
+
+	public List<Match> intersect(List<Match> a, List<Match> b) {
+		List<Match> intersect = new ArrayList<Match>(a);
+		intersect.retainAll(b);
+		return intersect;
 	}
 
 	/**
