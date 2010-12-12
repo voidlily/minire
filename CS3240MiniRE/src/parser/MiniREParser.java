@@ -26,6 +26,7 @@ import java.util.List;
 
 import interpreter.MiniREInterpreter;
 import parser.MiniREToken.Type;
+import regex.Match;
 
 import minire.CharacterHelper;
 
@@ -111,6 +112,7 @@ public class MiniREParser {
 		MiniREToken ExpectedToken = new MiniREToken(ExpectedName);
 		if (token.getTokenstr().equals(ExpectedToken.getTokenstr()) && token.getTokentype().equals(ExpectedToken.getTokentype())){
 			token = itr.next();
+			System.out.println(ExpectedName);
 			return true;
 		} else {
 			System.err.println("token does not match expected value "+ExpectedName+" on line "+token.getLinenum());
@@ -200,18 +202,18 @@ public class MiniREParser {
 		}
 	}
 	
-	private void begin() {
+	private void begin() throws IOException {
 		//begin <statement-list> end
 		match("begin");
 		while(!token.getTokenstr().equals("end")){
 			statement();
 		}
 		if (token==null) {       
-			System.err.println("no matching end terminal");
+			System.err.println("EOF: no matching end terminal");
         }
 	}
 	
-	private void statement() {
+	private void statement() throws IOException {
 		//<statement> <statement-list>
 		if (cmatch("replace")) {
 				replace();
@@ -222,18 +224,26 @@ public class MiniREParser {
 		}
 	}
 	
-	private void replace() {
+	private void replace() throws IOException {
 		//replace REGEX with ASCIISTR in <file-names> ;
-			match("replace");
-			match(Lexical.REGEX);
-			match("with");
-			match(Lexical.ASCIISTR);
-			match("in");
-			filenames();
-			match(";");
+		String regex = null;
+		String repl = null;
+		String[] filenames;
+		match("replace");
+		if(match(Lexical.REGEX)) {
+			regex = token.getTokenstr();
+		}
+		match("with");
+		if(match(Lexical.ASCIISTR)) {
+			repl = token.getTokenstr();
+		}
+		match("in");
+		filenames = filenames();
+		match(";");
+		interp.replace(regex, repl, filenames[0], filenames[1]);
 	}
 	
-	private void print() {
+	private void print() throws IOException {
 		//print ( <exp-list> ) ;
 		match("print");
 		match("(");
@@ -241,43 +251,53 @@ public class MiniREParser {
 		match(")");
 	}
 	
-	private void exp_list() {
+	private void exp_list() throws IOException {
 		while(!cmatch(")")){
 			exp();
 		}
 	}
 	
-	private void filenames() {
-		String left = file();
+	private String[] filenames() {
+		String[] temp = new String[2];
+		temp[0] = file();
 		match("->");
-		left+=" "+file();
+		temp[1] = file();
+		return temp;
 	}
 	
 	private String file() {
-		cmatch(Lexical.ASCIISTR);
-		return token.getTokenstr();
+		String temp = null;
+		if(cmatch(Lexical.ASCIISTR)) {
+			temp = token.getTokenstr();
+		}
+		token = itr.next();
+		return temp;
 	}
 	
-	private void find() {
+	private void find() throws IOException {
 		//find REGEX in <file>
-		token = itr.next();
+		String regex = null;
+		String file = null;
+		match("find");
 		if(token.getLex()==Lexical.REGEX) {
-			if(match("in")){
-				file();
-				match(";");
-			}
+			regex = token.getTokenstr();
+			match("in");
+			file = file();
+			match(";");
+			interp.find(regex, file);
 		} else {
-			System.err.println("invalid find call on line "+token.getLinenum());
+			System.err.println("line "+token.getLinenum()+": invalid find call");
 		}
 	}
 	
-	private Object id() {
+	private Object id() throws IOException {
 		String id_name = token.getTokenstr();
 		Object val = null;
 		if (nmatch(":=")) {
 			token = itr.next();
 			match(":=");
 			val = exp();
+			match(";");
 			interp.assign(id_name, val);
 		}  else {
 			val = interp.getSym().get(token.getTokenstr());
@@ -285,8 +305,9 @@ public class MiniREParser {
 		return val;
 	}
 	
-	private boolean binop (int initial, String op) {
-		int b = 0;
+	private boolean binop (int initial, String op) throws IOException {
+		Object b = 0;
+		Object out;
 		if (nmatch(Lexical.INTNUM)) {
 			b = CharacterHelper.convertStringToInt(itr.next().getTokenstr());
 		} else if (nmatch(Lexical.ID)) {
@@ -299,10 +320,42 @@ public class MiniREParser {
 		} else {
 			b = exp();
 		}
-		return interp.conditionOp(initial, op, b);
+		if (b instanceof Integer) {
+			return interp.conditionOp(initial, op,(Integer) b);
+		} else {
+			System.err.println("line "+token.getLinenum()+": mismatched types in binary operator");
+			return false;
+		}
 	}
 	
-	private Integer exp() {
+	@SuppressWarnings("unchecked")
+	private void union_inters (Object initial, String op) throws IOException {
+		Object b = 0;
+		Object out;
+		if (nmatch(Lexical.ID)) {
+			String c = itr.next().getTokenstr();
+			if(interp.getSym().get(c) instanceof List) {
+				b = itr.next().getTokenstr();
+			} else {
+				System.err.println("line "+token.getLinenum()+" unable to perform list binary operator on a non-list");
+			}
+		} else {
+			b = exp();
+		}
+		
+		if (b instanceof List) {
+			if(op.equals("union")) {
+				interp.union((List<Match>) initial,(List<Match>) b);
+			} else if(op.equals("inters")) {
+				interp.intersect((List<Match>) initial,(List<Match>) b);
+			}
+		} else {
+			System.err.println("line "+token.getLinenum()+": mismatched types in binary operator");
+		}
+	}
+	
+	
+	private Object exp() throws IOException {
 		Object val= null;
 		if (match(Lexical.ID)){
 			val = id();
@@ -311,22 +364,37 @@ public class MiniREParser {
 		} else if (match("(")) {
 			exp();
 			match(")");
+		} else if (match("find")) {
+			find();
+		} else if (match("#")) {
+			hash();
+		} else if (match(";")) {
+			return null;
 		}
 		
 		if (nmatch("+")||nmatch("-")||nmatch("*")||nmatch("/")) {
 			if(val instanceof Integer) {
 				binop((Integer) val, token.getTokenstr());
 			}
+		} else if (nmatch("union")) {
+			
 		}
 		
-		if(val instanceof Integer) {
-			return (Integer) val;
+		return val;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Integer hash() throws IOException {
+		match("#");
+		Object temp = exp();
+		if (temp instanceof List) {
+			return interp.countOp((List<Object>) temp);
 		} else {
 			return null;
 		}
 	}
 	
-	private void run(List<MiniREToken> toks) {
+	public void run(List<MiniREToken> toks) throws IOException {
 		token = toks.get(0);
 		itr = toks.iterator();
 		begin();
