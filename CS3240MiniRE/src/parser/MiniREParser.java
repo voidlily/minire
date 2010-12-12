@@ -38,8 +38,12 @@ public class MiniREParser {
 	private MiniREToken[] tokencollection;
 	private MiniREScanner scanner;
 
-	public MiniREParser() {
+	public MiniREParser() throws IOException {
 		scanner = new MiniREScanner(programfilereader);
+		
+		MiniREParser p = new MiniREParser();
+		p.run(p.getAllTokens());
+		
 	}
 	
 	private MiniREInterpreter interp = new MiniREInterpreter();
@@ -324,6 +328,7 @@ public class MiniREParser {
 	
 	private void run(List<MiniREToken> toks) {
 		token = toks.get(0);
+		itr = toks.iterator();
 		begin();
 	}
 	
