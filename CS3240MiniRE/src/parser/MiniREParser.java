@@ -204,7 +204,7 @@ public class MiniREParser {
 		}
 		if (token==null) {       
 			System.err.println("no matching end terminal");
-                }
+        }
 	}
 	
 	private void statement() {
@@ -320,6 +320,11 @@ public class MiniREParser {
 		} else {
 			return null;
 		}
+	}
+	
+	private void run(List<MiniREToken> toks) {
+		token = toks.get(0);
+		begin();
 	}
 	
 	
