@@ -3,6 +3,7 @@ package parser;
 import static org.junit.Assert.*;
 
 import grammar.Lexical;
+import grammar.Terminal;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -94,5 +95,6 @@ public class MiniREScannerTest {
 		List<MiniREToken> tokens = s.scan();
 		assertFalse("Expected token to not be INTNUM, got " + tokens.get(0).getLex(),
 				tokens.get(0).getLex() == Lexical.INTNUM);
+		assertEquals(tokens.get(0).getTerm(), Terminal.minus);
 	}
 }
