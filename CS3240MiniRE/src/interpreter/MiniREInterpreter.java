@@ -30,7 +30,6 @@ public class MiniREInterpreter {
 	}
 
 	public void assign(String id, Object value) {
-		assert(!sym.containsKey(id));
 		sym.put(id, value);
 	}
 
