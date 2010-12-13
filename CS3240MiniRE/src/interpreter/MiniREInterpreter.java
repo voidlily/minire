@@ -6,9 +6,6 @@
 
 package interpreter;
 
-import grammar.Lexical;
-import grammar.Terminal;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import minire.CharacterHelper;
-import parser.MiniREToken;
 import regex.Match;
 import regex.Regex;
 
@@ -28,7 +24,7 @@ import regex.Regex;
  * @author Incomprehensible Penguin Arena
  */
 public class MiniREInterpreter {
-	private HashMap<String, Object> sym;
+	protected HashMap<String, Object> sym;
 
 	// TODO these methods currently return null, change when better defined
 
