@@ -28,6 +28,7 @@ public class MiniREScannerTest {
 	public void testScan() throws IOException {
 		String file = "begin\n\n" +
 
+		" a := 5;\n" +
 		" replace '[a-z]+b' with \"<lowercase,b>\" in \"input1.txt\" -> \"output1.txt\";\n" +
 		" replace '[^1-9]+c? | \\\'' with \"<digit,c or \'>\" in \"input2.txt\" -> \"output2.txt\";\n" +
 		" replace '([0-9][0-9])/' with \"<nondigit,nondigit,/>\" in \"input2.txt\" -> \"output2-v2.txt\";\n\n" +

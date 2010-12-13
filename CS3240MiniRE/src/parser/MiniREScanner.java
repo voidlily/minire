@@ -97,7 +97,13 @@ public class MiniREScanner {
 			inRegex = true;
 			regexDelimiter = currTokStr.charAt(0);
 		}
+		boolean alphanum;
 		char next = nextChar();
+		if (currTokStr != null && currTokStr.length() > 0) {
+			alphanum = CharacterHelper.isLetterOrDigit(currTokStr.charAt(0));
+		} else {
+			alphanum = CharacterHelper.isLetterOrDigit(next);
+		}
 
 		// Continue adding more characters to the candidate token
 		// until we hit a non-matching (with respect to letter or digit) character
@@ -121,7 +127,6 @@ public class MiniREScanner {
 			next = nextChar();
 		} else {
 			boolean done = Terminal.determineTokenType(currTokStr) != null;
-			boolean alphanum = CharacterHelper.isLetterOrDigit(next);
 			while (!done && CharacterHelper.isLetterOrDigit(next) == alphanum) {
 				if (next != (char) -1) {
 					currTokStr += next;
@@ -142,7 +147,6 @@ public class MiniREScanner {
 			}
 		}
 
-		MiniREToken tok = new MiniREToken(currTokStr, line, spaceBetweenTokens);
 
 		while (next == ' ' || next == '\n' || next == '\t') {
 			if (next == ' ') {
@@ -150,6 +154,7 @@ public class MiniREScanner {
 			}
 			next = nextChar();
 		}
+		MiniREToken tok = new MiniREToken(currTokStr, line, spaceBetweenTokens);
 //		if (Character.isDefined(next)) {
 //			System.out.print(next);
 //		}
