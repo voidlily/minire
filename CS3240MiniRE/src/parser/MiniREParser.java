@@ -226,7 +226,7 @@ public class MiniREParser {
 		}
 	}
 
-	private void ifblock() {
+	private void ifblock() throws IOException {
 		match("if");
 		token = itr.next();
 		match("(");
@@ -256,7 +256,7 @@ public class MiniREParser {
 		}
 	}
 
-	private void whileblock() {
+	private void whileblock() throws IOException {
 		ListIterator<MiniREToken> orig = itr;
 		match("while");
 		token = itr.next();
@@ -311,6 +311,21 @@ public class MiniREParser {
 				break;
 			}
 		}
+	}
+
+	private boolean bool_op() throws IOException {
+		Object aa = exp();
+		int a = CharacterHelper.convertStringToInt(aa.toString());
+		String op = null;
+		if (nmatch("==") || nmatch("!=") || nmatch("<") || nmatch(">") || nmatch("<=") || nmatch(">=")) {
+			op = token.getTerm().name();
+		}
+		Object bb = exp();
+		int b = CharacterHelper.convertStringToInt(bb.toString());
+		if (op != null) {
+			return interp.conditionOp(a, op, b);
+		}
+		return false;
 	}
 
 	private void replace() throws IOException {
