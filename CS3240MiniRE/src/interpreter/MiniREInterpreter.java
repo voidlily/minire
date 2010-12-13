@@ -26,8 +26,6 @@ import regex.Regex;
 public class MiniREInterpreter {
 	protected HashMap<String, Object> sym;
 
-	// TODO these methods currently return null, change when better defined
-
 	public void assignVar(final String id, final String value) {
 		assert(sym.containsKey(value));
 		sym.put(id, sym.get(value));
