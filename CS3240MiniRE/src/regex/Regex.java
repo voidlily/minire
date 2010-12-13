@@ -97,6 +97,12 @@ public class Regex {
 					found++;
 				}
 			}
+			else if(t.getNextState().getTransitions().size() > 0) {
+				if(s.length() > 1) {
+					found += recurseThroughRegex(s, t.getNextState());
+				}
+			}
+			
 			if(found > 0 && t.getNextState().isAcceptState()) {
 				found++;
 			}
@@ -112,9 +118,14 @@ public class Regex {
 		return found;
 	}
 
-	public List<String> replace(final List<String> lines, final String rep) {
-		// TODO stub
-		return null;
+	public List<String> replace(List<String> lines, final String rep) {
+		String line;
+		for(Match m : match(lines)) {
+			line = lines.remove(m.getRow());
+			line = line.substring(0, m.getCol()) + rep + line.substring(m.getCol() + rep.length());
+			lines.add(m.getRow(), line);
+		}
+		return lines;
 	}
 	
 	private List<String> tokenizeRegexString(String str) {
