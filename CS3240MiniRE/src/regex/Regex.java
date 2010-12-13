@@ -51,71 +51,76 @@ public class Regex {
 	
 	private List<Match> checkLineAgainstPattern(String s, int linenum) {
 		List<Match> matchlist = new ArrayList<Match>();
-		int pos = 0;
+		String str = "";
 		for(int i = 0; i < s.length(); i++) {
-			pos = recurseThroughRegex(s.substring(i), startState);
-			if(pos > 0) {
+			str = recurseThroughRegex(s.substring(i), startState);
+			if(str != null && str.length() > 0) {
 				//TODO figure out a way to actually get the file object for the second param to the Match constructor.
-				matchlist.add(new Match(s.substring(i, pos), "", linenum, i));
+				matchlist.add(new Match(str, "", linenum, i));
+				i += str.length();
 			}
 		}
 		return matchlist;
 	}
 	
-	private int recurseThroughRegex(String s, State dfa) {
-		//TODO this is not returning properly right now, have to work on the return
-		//logic so that we can return determine what the string is that was matched.
-		int found = 0;
+	private String recurseThroughRegex(String s, State dfa) {
+		String found = "";
+		String tempstr = "";
 		int[] range;
-		char c;
+		char c = s.charAt(0);
+		boolean accepted = false;
 		for(Transition t : dfa.getTransitions()) {
-			if(t.getSubDFA() != null) {
-				found += recurseThroughRegex(s, t.getSubDFA());
-				if(found > 0) {
-					break;
+			if(t.getExactMatch() != null) {
+				if(t.getExactMatch().equals("" + c)) {
+					found = "" + c;
 				}
 			}
 			else if(t.getRange() != null) {
-				c = s.charAt(0);
 				range = t.getRange();
 				if(t.isNotThisRange()) {
-					//Then we test everything but this range.
 					if((int) c < range[0] && (int) c > range[1]) {
-						found++;
+						found = "" + c;
 					}
 				}
 				else {
-					//Then we test this range.
 					if((int) c >= range[0] && (int) c <= range[1]) {
-						found++;
+						found = "" + c;
 					}
 				}
 			}
-			else if(t.getExactMatch() != null) {
-				c = s.charAt(0);
-				if(t.getExactMatch().equals("" + c)) {
-					found++;
+			else if(t.getSubDFA() != null) {
+				//Then go a DFA deeper.
+				tempstr = recurseThroughRegex(s, t.getSubDFA());
+				if(tempstr != null && tempstr.length() > 0) {
+					accepted = true;
+					found = tempstr;
+					break;
 				}
 			}
-			else if(t.getNextState().getTransitions().size() > 0) {
-				if(s.length() > 1) {
-					found += recurseThroughRegex(s, t.getNextState());
+			if(!t.getNextState().isAcceptState()) {
+				accepted = false;
+				if(s.length() <= 1) {
+					return null;
 				}
-			}
-			
-			if(found > 0 && t.getNextState().isAcceptState()) {
-				found++;
+				tempstr = recurseThroughRegex(s.substring(1), t.getNextState());
+				if(found.length() > 0 && tempstr != null && tempstr.length() > 0) {
+					//Then we can go deeper into this DFA.
+					found = c + tempstr;
+					accepted = true;
+//					System.out.println("string " + s);
+//					System.out.println("temp " + tempstr);
+//					System.out.println("found " + found);
+				}
 			}
 			else {
-				if(s.length() > 1) {
-					found += recurseThroughRegex(s.substring(1), t.getNextState());
-				}
-				else {
-					found = 0;
-				}
+				accepted = true;
+				return found;
 			}
 		}
-		return found;
+		if(accepted) {
+			return found;
+		}
+		return null;
 	}
 
 	public List<String> replace(List<String> lines, final String rep) {

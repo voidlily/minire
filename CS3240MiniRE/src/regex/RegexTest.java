@@ -64,11 +64,18 @@ public class RegexTest {
 		State tempstate = testreg.getStartState();
 		assertTrue(tempstate.getTransitions().size() == 1);
 		assertTrue(tempstate.getTransitions().get(0).getNextState().isAcceptState());
+		tempstate = tempstate.getTransitions().get(0).getSubDFA();
+		assertTrue(tempstate.getTransitions().size() == 1);
+		assertTrue(tempstate.getTransitions().get(0).getExactMatch().equals("a"));
+		tempstate = tempstate.getTransitions().get(0).getNextState();
+		assertTrue(tempstate.getTransitions().get(0).getExactMatch().equals("b"));
+		assertTrue(tempstate.getTransitions().get(0).getNextState().isAcceptState());
 		List<String> lines = new ArrayList<String>();
 		lines.add("ab");
 		lines.add("blah blah ab blah");
-		System.out.println(testreg.match(lines));
-		assertTrue(testreg.match(lines).size() == 2);
+		List<Match> templist = testreg.match(lines);
+		System.out.println(templist);
+		assertTrue(templist.size() == 2);
 	}
 	
 	@Test

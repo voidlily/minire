@@ -28,15 +28,6 @@ public class MiniRE {
 		}
 	}
 
-	public static void startInterpreter(final List<MiniREToken> tokens) {
-		if(tokens == null) {
-			//Then there was an error with the parser somewhere.
-			System.out.println("Failed to start the interpreter, see parsing errors.");
-		}
-		MiniREInterpreter interp = new MiniREInterpreter();
-		//interp.interpretTokens(tokens);
-	}
-
 	public static void main(String[] args) throws IOException {
 		if(args.length == 1) {
 			File tempfile = new File(args[0]);
@@ -45,7 +36,7 @@ public class MiniRE {
 				programfile = args[0];
 				if(programfile.endsWith(".mre")) {
 					//Make sure the program is actually of type '.mre'.
-					startInterpreter(startParsing());
+					startParsing();
 				}
 				else {
 					System.out.println("The passed in program is not of type '.mre'.");
