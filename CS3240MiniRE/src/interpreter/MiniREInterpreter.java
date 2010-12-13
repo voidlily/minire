@@ -24,7 +24,7 @@ import regex.Regex;
  * @author Incomprehensible Penguin Arena
  */
 public class MiniREInterpreter {
-	protected HashMap<String, Object> sym;
+	protected HashMap<String, Object> sym = new HashMap<String, Object>();
 
 	public void assignVar(final String id, final String value) {
 		assert(sym.containsKey(value));

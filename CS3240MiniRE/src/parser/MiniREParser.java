@@ -170,7 +170,9 @@ public class MiniREParser {
 	/** matches next token without iterating forward */
 	private boolean nmatch(String ExpectedName) {
 		MiniREToken ExpectedToken = new MiniREToken(ExpectedName);
-		if (itr.next().getTokenstr().equals(ExpectedToken.getTokenstr()) && itr.next().getTokentype().equals(ExpectedToken.getTokentype())){
+		MiniREToken a = itr.next();
+		itr.previous();
+		if (a.getTokenstr().equals(ExpectedToken.getTokenstr()) && a.getTokentype().equals(ExpectedToken.getTokentype())){
 			return true;
 		} else {
 			//System.err.println("token does not match expected value "+ExpectedName+" on line "+itr.next().getLinenum());
@@ -215,44 +217,46 @@ public class MiniREParser {
 	private void statement() throws IOException {
 		//<statement> <statement-list>
 		//System.out.println(token);
-		if (match("replace")) {
+		if (cmatch("replace")) {
 				replace();
-		} else if (match("print")) {
+		} else if (cmatch("print")) {
 				print();
-		} else if (match(Lexical.ID)) {
+		} else if (cmatch(Lexical.ID)) {
 				id();
-		} else if (match("if")) {
+		} else if (cmatch("if")) {
 				ifblock();
 		}
 	}
 
 	private void ifblock() throws IOException {
 		match("if");
-		token = itr.next();
+//		token = itr.next();
 		match("(");
-		token = itr.next();
+//		token = itr.next();
 		boolean cond = bool_op(); // TODO incomplete
-		token = itr.next();
+//		token = itr.next();
 		match(")");
-		token = itr.next();
+//		token = itr.next();
 		match("{");
-		while (!nmatch("}")) {
+		while (!cmatch("}")) {
 			token = itr.next();
 			if (cond) {
 				statement();
 			}
 		}
 		token = itr.next();
-		if (match("else")) {
+		if (cmatch("else")) {
 			token = itr.next();
 			match("{");
-			while (!nmatch("}")) {
+			while (!cmatch("}")) {
 				token = itr.next();
 				if (!cond) {
 					statement();
 				}
 			}
-			token = itr.next();
+//			token = itr.next();
+		} else {
+			token = itr.previous();
 		}
 	}
 
@@ -260,7 +264,7 @@ public class MiniREParser {
 		ListIterator<MiniREToken> orig = itr;
 		match("while");
 		token = itr.next();
-		nmatch("("); // nmatch to get the correct cond_index
+		cmatch("("); // nmatch to get the correct cond_index
 
 		int cond_index = itr.nextIndex();
 		ListIterator<MiniREToken> condItr = toks.listIterator(cond_index);
@@ -270,7 +274,7 @@ public class MiniREParser {
 		match(")");
 
 		token = itr.next();
-		nmatch("{"); // nmatch to get the correct block_index
+		cmatch("{"); // nmatch to get the correct block_index
 		int block_index = itr.nextIndex();
 		token = itr.next();
 
@@ -281,16 +285,16 @@ public class MiniREParser {
 			// so it is sufficient to match RCURLY
 			// 2. The condition is false - we need to track nested blocks to make sure match
 			// the correct RCURLY, as none of the nested blocks will be executed
-			while (!nmatch("}") || nested > 0) {
+			while (!cmatch("}") || nested > 0) {
 				token = itr.next();
 				if (cond) {
 					statement();
 				} else {
 					// if the condition is false, keep count of any nested blocks,
 					// as we're skipping over but not executing them
-					if (nmatch("{")) {
+					if (cmatch("{")) {
 						nested++;
-					} else if (nmatch("}")) {
+					} else if (cmatch("}")) {
 						nested--;
 					}
 				}
@@ -318,8 +322,10 @@ public class MiniREParser {
 		int a = CharacterHelper.convertStringToInt(aa.toString());
 		String op = null;
 		if (nmatch("==") || nmatch("!=") || nmatch("<") || nmatch(">") || nmatch("<=") || nmatch(">=")) {
-			op = token.getTerm().name();
+			token = itr.next();
+			op = token.getTokenstr();
 		}
+		token = itr.next();
 		Object bb = exp();
 		int b = CharacterHelper.convertStringToInt(bb.toString());
 		if (op != null) {
@@ -335,36 +341,42 @@ public class MiniREParser {
 		String repl = null;
 		String[] filenames;
 		match("replace");
-		if(match(Lexical.REGEX)) {
+		if(cmatch(Lexical.REGEX)) {
 			regex = token.getTokenstr();
 		}
+		token = itr.next();
 		match("with");
 		if(match(Lexical.ASCIISTR)) {
 			repl = token.getTokenstr();
 		}
-		token = itr.next();
+		//token = itr.next();
 		match("in");
-		token = itr.next();
+		//token = itr.next();
 		filenames = filenames();
 		match(";");
 		token = itr.next();
-		System.out.println("calls replace");
-		System.out.println(token);
-		//interp.replace(regex, repl, filenames[0], filenames[1]);
+		System.out.println("calls replace "+regex+" "+repl+" "+filenames[0]+" "+filenames[1]);
+		//System.out.println(token);
+		interp.replace(regex, repl, filenames[0], filenames[1]);
 	}
 
 	private void print() throws IOException {
-		//print ( <exp-list> ) ;
+		System.out.println("check print");
+		List<Object> val = null;
 		match("print");
-		match("(");
-		exp_list();
+		System.out.println(match("("));
+		val = exp_list();
 		match(")");
+
+		interp.printOp(val.toString());
 	}
 
-	private void exp_list() throws IOException {
-		while(!cmatch(")")){
-			exp();
+	private List<Object> exp_list() throws IOException {
+		List<Object> out = new ArrayList<Object>();
+		while(!nmatch(")")||!nmatch(";")) {
+			out.add(exp());
 		}
+		return out;
 	}
 
 	private String[] filenames() {
@@ -384,20 +396,29 @@ public class MiniREParser {
 		return temp;
 	}
 
-	private void find() throws IOException {
+	private List<String> find() throws IOException {
 		//find REGEX in <file>
+		System.out.println("check find");
+		List<String> foo = new ArrayList<String>();
+		foo.add("foo");
+		foo.add("bar");
 		String regex = null;
 		String file = null;
-		match("find");
+		System.out.println(cmatch("find"));
+		System.out.println(token);
+		token = itr.next();
+		System.out.println(token);
+		token = itr.next();
 		if(token.getLex()==Lexical.REGEX) {
 			regex = token.getTokenstr();
 			match("in");
 			file = file();
 			match(";");
-			interp.find(regex, file);
+			//interp.find(regex, file);
 		} else {
 			System.err.println("line "+token.getLinenum()+": invalid find call");
 		}
+		return foo;
 	}
 
 	private Object id() throws IOException {
@@ -465,18 +486,18 @@ public class MiniREParser {
 
 	private Object exp() throws IOException {
 		Object val= null;
-		if (match(Lexical.ID)){
+		if (cmatch(Lexical.ID)){
 			val = id();
-		} else if (match(Lexical.INTNUM)){
+		} else if (cmatch(Lexical.INTNUM)){
 			val = CharacterHelper.convertStringToInt(token.getTokenstr());
-		} else if (match("(")) {
+		} else if (cmatch("(")) {
 			exp();
-			match(")");
-		} else if (match("find")) {
-			find();
-		} else if (match("#")) {
-			hash();
-		} else if (match(";")) {
+			return match(")");
+		} else if (cmatch("find")) {
+			return find();
+		} else if (cmatch("#")) {
+			return hash();
+		} else if (cmatch(";")) {
 			return null;
 		}
 

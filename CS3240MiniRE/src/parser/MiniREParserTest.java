@@ -14,8 +14,8 @@ import org.junit.Test;
 public class MiniREParserTest {
 
 	List<MiniREToken> tokens;
-	String file; 
-	
+	String file;
+
 	@Before
 	public void setUp() throws Exception {
 		file = "begin\n\n" +
@@ -43,14 +43,47 @@ public class MiniREParserTest {
 	public void testGetAllTokens() {
 		System.out.println(tokens);
 	}
-	
+
+	@Test
+	public void testIf() throws IOException {
+		String f = "begin\n\n" +
+
+		"a := 5;\n" +
+		"if (a == 5) {\n" +
+		"print(a);\n" +
+		"}\n" +
+		"end";
+		Reader r = new StringReader(f);
+		MiniREScanner s = new MiniREScanner(r);
+		tokens = s.scan();
+		MiniREParser p = new MiniREParser();
+		p.run(tokens);
+	}
+
+	@Test
+	public void testWhile() throws IOException {
+		String f = "begin\n\n" +
+
+		"a := 5;\n" +
+		"while (a >= 0) {\n" +
+		"print(a);\n" +
+		"a := a - 1;\n" +
+		"}\n" +
+		"end";
+		Reader r = new StringReader(f);
+		MiniREScanner s = new MiniREScanner(r);
+		tokens = s.scan();
+		MiniREParser p = new MiniREParser();
+		p.run(tokens);
+	}
+
 	@Test
 	public void testGetTokensByLines() throws IOException {
 		MiniREParser p = new MiniREParser();
 		List<List<MiniREToken>> a = p.getTokensByLines(tokens);
-		
+
 		System.out.println(a);
-		
+
 		/*for (List<MiniREToken> h: a) {
 			for (MiniREToken j: h) {
 				System.out.print(j);
@@ -58,7 +91,7 @@ public class MiniREParserTest {
 			System.out.println("");
 		}*/
 	}
-	
+
 	@Test
 	public void testRun() throws IOException {
 		MiniREParser p = new MiniREParser();
